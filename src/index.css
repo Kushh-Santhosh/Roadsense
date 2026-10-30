@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-brand-warm-white text-brand-navy font-sans antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+}
+
+/* Custom Leaflet Map Styling */
+.leaflet-container {
+  font-family: inherit;
+  z-index: 10;
+}
+
+.roadsense-popup .leaflet-popup-content-wrapper {
+  border-radius: 1rem;
+  box-shadow: 0 10px 25px -5px rgba(20, 37, 54, 0.2), 0 8px 10px -6px rgba(20, 37, 54, 0.1);
+  border: 1px solid #E5E9EF;
+  padding: 0;
+}
+
+.roadsense-popup .leaflet-popup-content {
+  margin: 0;
+  line-height: 1.4;
+}
+
+.custom-hazard-marker {
+  background: transparent;
+  border: none;
+}
+
+.custom-user-marker {
+  background: transparent;
+  border: none;
+}
+
+/* Smooth fade in animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.25s ease-out forwards;
+}

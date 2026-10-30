@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <!-- Protective Shield / Pin Contour -->
+  <path d="M50 8C30.67 8 15 23.67 15 43C15 63.5 45 89 48.5 91.8C49.4 92.5 50.6 92.5 51.5 91.8C55 89 85 63.5 85 43C85 23.67 69.33 8 50 8Z" fill="#142536"/>
+  
+  <!-- Outer Safety Aura ring -->
+  <path d="M50 14C33.98 14 21 26.98 21 43C21 60.5 47 82.5 50 85C53 82.5 79 60.5 79 43C79 26.98 66.02 14 50 14Z" stroke="#F28C28" stroke-width="2.5" stroke-dasharray="4 3" opacity="0.4"/>
+  
+  <!-- Curving Road Perspective Highway inside marker -->
+  <path d="M36 68L44 26C44.5 23.5 47 22 49.5 22H50.5C53 22 55.5 23.5 56 26L64 68" stroke="#F8FAFC" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Road Center Dashed Line (Movement) -->
+  <path d="M50 32V38M50 46V54M50 62V66" stroke="#F28C28" stroke-width="2.5" stroke-linecap="round"/>
+  
+  <!-- Radar / Sensory Wave Arc (Road Intelligence) -->
+  <path d="M35 22C44.5 17 55.5 17 65 22" stroke="#F28C28" stroke-width="3" stroke-linecap="round"/>
+  <path d="M40 16C46.5 12.5 53.5 12.5 60 16" stroke="#F28C28" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+  
+  <!-- Central Pulse / Sensor Point -->
+  <circle cx="50" cy="46" r="3.5" fill="#F28C28" />
+</svg>
