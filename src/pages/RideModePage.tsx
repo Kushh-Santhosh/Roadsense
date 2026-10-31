@@ -14,7 +14,6 @@ import {
   Shield,
   Gauge,
   Sliders,
-  Sparkles,
   MapPin,
   CheckCircle2,
   Trash2,

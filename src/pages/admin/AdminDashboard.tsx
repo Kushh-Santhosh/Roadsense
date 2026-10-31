@@ -38,42 +38,42 @@ export const AdminDashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-brand-warm-white py-8 px-4 sm:px-6 lg:px-8 font-sans">
       <div className="max-w-7xl mx-auto space-y-6">
-        {/* Authority Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-brand-navy text-white p-6 sm:p-8 rounded-3xl shadow-elevated">
+        {/* Operations Header */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-brand-navy text-white p-6 sm:p-8 rounded-2xl shadow-subtle border border-slate-700">
           <div>
             <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-brand-orange mb-1">
               <Building2 className="w-4 h-4 text-brand-orange" />
-              Municipal Road Maintenance & Fleet Management Portal
+              RoadSense Operations Workspace
             </div>
-            <h1 className="text-2xl sm:text-3xl font-black tracking-tight">
-              Authority Operations Center
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+              RoadSense Operations
             </h1>
-            <p className="text-xs sm:text-sm text-brand-slate-light mt-1 max-w-2xl">
-              Geospatial road safety dispatch, crowd-verified pothole inspection, and maintenance crew tracking for the Bengaluru metropolitan region.
+            <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-2xl">
+              Demonstration workspace — no official BBMP integration. Incident triage, duplicate merging, and maintenance audit tracking.
             </p>
           </div>
 
-          <div className="flex items-center gap-3 flex-wrap">
+          <div className="flex items-center gap-2.5 flex-wrap">
             <Link
               to="/admin/reports"
-              className="px-4 py-2.5 rounded-xl bg-brand-orange hover:bg-brand-orange-hover text-white text-xs font-bold transition-all shadow-subtle flex items-center gap-1.5"
+              className="px-3.5 py-2 rounded-xl bg-brand-orange hover:bg-brand-orange-hover text-white text-xs font-bold transition-all shadow-subtle flex items-center gap-1.5"
             >
               <Layers className="w-4 h-4" />
-              Review Queue ({pendingDispatch})
+              <span>Triage Queue ({pendingDispatch})</span>
             </Link>
             <Link
               to="/admin/automation"
-              className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-all border border-white/20 flex items-center gap-1.5"
+              className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-all border border-white/20 flex items-center gap-1.5"
             >
               <Cpu className="w-4 h-4 text-brand-orange" />
-              n8n Automation
+              <span>n8n Workflows</span>
             </Link>
             <Link
               to="/admin/analytics"
-              className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-all border border-white/20 flex items-center gap-1.5"
+              className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-all border border-white/20 flex items-center gap-1.5"
             >
               <TrendingUp className="w-4 h-4 text-brand-orange" />
-              Analytics & CSV
+              <span>Dataset & CSV</span>
             </Link>
           </div>
         </div>
@@ -99,8 +99,8 @@ export const AdminDashboard: React.FC = () => {
           </div>
 
           <div className="bg-white p-4 rounded-2xl border border-brand-neutral-grey shadow-subtle">
-            <span className="text-[11px] font-bold text-purple-700 uppercase tracking-wider">Crowd Verified</span>
-            <div className="text-2xl font-black text-purple-700 mt-1">{verifiedCount}</div>
+            <span className="text-[11px] font-bold text-brand-navy uppercase tracking-wider">Crowd Verified</span>
+            <div className="text-2xl font-black text-brand-navy mt-1">{verifiedCount}</div>
             <div className="text-[10px] text-brand-slate-light">Multiple rider consensus</div>
           </div>
 

@@ -11,8 +11,7 @@ import {
   Mail,
   Phone,
   RefreshCw,
-  LogOut,
-  Sparkles
+  LogOut
 } from 'lucide-react';
 
 export const ProfilePage: React.FC = () => {

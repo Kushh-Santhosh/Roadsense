@@ -163,11 +163,11 @@ export const AdminAnalyticsPage: React.FC = () => {
           </div>
 
           <div className="bg-white p-5 rounded-3xl border border-brand-neutral-grey shadow-subtle">
-            <span className="text-xs font-bold text-purple-700 uppercase">AI Detections</span>
-            <div className="text-3xl font-black text-purple-700 mt-1">
+            <span className="text-xs font-bold text-brand-slate uppercase">Photo Classified</span>
+            <div className="text-3xl font-black text-brand-navy mt-1">
               {hazards.filter((h) => h.aiDetected).length}
             </div>
-            <div className="text-[11px] text-brand-slate-light mt-0.5">RDD2022 Vision Assisted</div>
+            <div className="text-[11px] text-brand-slate-light mt-0.5">RDD2022 Distress Tagged</div>
           </div>
 
           <div className="bg-white p-5 rounded-3xl border border-brand-neutral-grey shadow-subtle">

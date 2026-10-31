@@ -125,7 +125,7 @@ export const AdminReportsPage: React.FC = () => {
           {selectedIds.length >= 2 && (
             <button
               onClick={handleOpenMergeConfirm}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-purple-700 hover:bg-purple-800 text-white font-bold text-xs shadow-md shadow-purple-700/20 transition-all cursor-pointer animate-fadeIn"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-brand-navy hover:bg-brand-navy-light text-white font-bold text-xs shadow-subtle transition-all cursor-pointer animate-fadeIn"
             >
               <GitMerge className="w-4 h-4" />
               Merge {selectedIds.length} Selected as Duplicates

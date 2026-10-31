@@ -14,7 +14,6 @@ import {
   ArrowRight,
   Info,
   MapPin,
-  Sparkles,
   Layers,
   Waves
 } from 'lucide-react';
@@ -217,11 +216,17 @@ export const RouteWarningsPage: React.FC = () => {
             </div>
 
             <div className="bg-white p-4 rounded-2xl border border-brand-neutral-grey shadow-subtle">
-              <span className="text-xs font-semibold text-brand-slate uppercase tracking-wider">Advisory Condition Rating</span>
-              <div className="text-2xl font-extrabold text-brand-navy mt-1">
-                {routeInfo.safetyScore} <span className="text-sm font-normal text-slate-400">/ 10</span>
+              <span className="text-xs font-semibold text-brand-slate uppercase tracking-wider">Corridor Condition</span>
+              <div className="text-base font-extrabold text-brand-navy mt-1">
+                {routeInfo.hazardsOnRoute.length === 0
+                  ? 'No reported hazards'
+                  : routeInfo.hazardsOnRoute.length <= 2
+                  ? 'Fewer currently reported hazards'
+                  : 'Multiple reported hazards'}
               </div>
-              <div className="text-[11px] text-brand-slate-light mt-0.5 truncate">{routeInfo.safetySummary}</div>
+              <div className="text-[11px] text-brand-slate-light mt-0.5 truncate">
+                {routeInfo.hazardsOnRoute.length > 0 ? 'Proceed with caution along highlighted segments' : 'Corridor clear of unverified defects'}
+              </div>
             </div>
 
             <div className="bg-white p-4 rounded-2xl border border-brand-neutral-grey shadow-subtle flex flex-col justify-between">

@@ -10,6 +10,7 @@ interface ToastMessage {
 
 interface ToastContextType {
   showToast: (message: string, type?: ToastMessage['type'], title?: string) => void;
+  addToast: (message: string, type?: ToastMessage['type'], title?: string) => void;
 }
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
@@ -40,7 +41,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   return (
-    <ToastContext.Provider value={{ showToast }}>
+    <ToastContext.Provider value={{ showToast, addToast: showToast }}>
       {children}
       {/* Toast Notification Stack Container */}
       <div className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none">
@@ -69,14 +70,16 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   );
 };
 
-export function useToast() {
+export function useToast(): ToastContextType {
   const ctx = useContext(ToastContext);
   if (!ctx) {
     // Graceful fallback if used outside provider
+    const logToast = (msg: string) => {
+      console.log('[Toast]', msg);
+    };
     return {
-      showToast: (msg: string) => {
-        console.log('[Toast]', msg);
-      }
+      showToast: logToast,
+      addToast: logToast
     };
   }
   return ctx;

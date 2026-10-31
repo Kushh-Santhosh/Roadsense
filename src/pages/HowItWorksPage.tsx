@@ -36,19 +36,19 @@ export const HowItWorksPage: React.FC = () => {
 
         {/* Step 2 */}
         <div className="bg-white rounded-3xl p-6 sm:p-8 border border-brand-neutral-grey shadow-subtle flex flex-col md:flex-row gap-6 items-start">
-          <div className="w-14 h-14 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center flex-shrink-0 text-xl font-black">
+          <div className="w-14 h-14 rounded-2xl bg-brand-navy text-white flex items-center justify-center flex-shrink-0 text-xl font-black">
             02
           </div>
           <div className="space-y-3">
-            <h3 className="text-lg font-bold text-brand-navy">RoadScan AI Image Analysis</h3>
+            <h3 className="text-lg font-bold text-brand-navy">RDD2022 Distress Morphology Classification</h3>
             <p className="text-xs text-brand-slate leading-relaxed">
-              Built on the open-source Road Damage Dataset (RDD2022) standard. The vision pipeline inspects asphalt luminance variance, surface shadow depressions, and fissure orientation to classify damage into standard categories:
+              Aligned with the international Road Damage Detection (RDD2022) taxonomy. The client-side feature inspector analyzes pavement luminance, surface shadow depressions, and fissure orientation to classify damage into standard categories:
             </p>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px] text-brand-navy font-semibold pt-1">
-              <div className="bg-purple-50 p-2 rounded-lg border border-purple-200">D40: Pothole</div>
-              <div className="bg-purple-50 p-2 rounded-lg border border-purple-200">D20: Alligator Cracks</div>
-              <div className="bg-purple-50 p-2 rounded-lg border border-purple-200">D00: Longitudinal Crack</div>
-              <div className="bg-purple-50 p-2 rounded-lg border border-purple-200">D10: Transverse Crack</div>
+              <div className="bg-brand-warm-white p-2 rounded-lg border border-brand-neutral-grey">D40: Pothole</div>
+              <div className="bg-brand-warm-white p-2 rounded-lg border border-brand-neutral-grey">D20: Alligator Cracks</div>
+              <div className="bg-brand-warm-white p-2 rounded-lg border border-brand-neutral-grey">D00: Longitudinal Crack</div>
+              <div className="bg-brand-warm-white p-2 rounded-lg border border-brand-neutral-grey">D10: Transverse Crack</div>
             </div>
           </div>
         </div>

@@ -8,7 +8,6 @@ import {
   Clock,
   ThumbsUp,
   ThumbsDown,
-  Sparkles,
   Activity,
   CheckCircle,
   Flag,
@@ -188,14 +187,14 @@ export const HazardCard: React.FC<HazardCardProps> = ({
           </button>
         </div>
 
-        {/* AI Suggestion (if available) - Clearly labeled as model suggestion */}
+        {/* Distress Classification (if available) - Clearly labeled */}
         {evidence.aiSuggestion && (
-          <div className="text-[10px] text-purple-800 bg-purple-50 px-2 py-1 rounded-md border border-purple-200 flex items-center justify-between">
+          <div className="text-[10px] text-brand-slate bg-brand-warm-white px-2 py-1 rounded-md border border-brand-neutral-grey flex items-center justify-between">
             <span>
-              <strong>AI Suggestion:</strong> {evidence.aiSuggestion.category} ({evidence.aiSuggestion.damageType})
+              <strong className="text-brand-navy">Distress Tag:</strong> {evidence.aiSuggestion.category} ({evidence.aiSuggestion.damageType})
             </span>
-            <span className="font-mono font-bold text-purple-900">
-              {Math.round(evidence.aiSuggestion.confidence * 100)}% match
+            <span className="font-mono font-bold text-brand-navy">
+              RDD2022
             </span>
           </div>
         )}

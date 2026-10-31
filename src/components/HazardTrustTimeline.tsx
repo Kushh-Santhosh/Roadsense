@@ -5,7 +5,6 @@ import {
   ShieldCheck,
   Camera,
   Activity,
-  Sparkles,
   Clock,
   UserCheck,
   AlertCircle,
@@ -37,9 +36,9 @@ export const HazardTrustTimeline: React.FC<HazardTrustTimelineProps> = ({ hazard
       case 'citizen_report':
         return <Camera className="w-3.5 h-3.5 text-brand-orange" />;
       case 'community_vote':
-        return <UserCheck className="w-3.5 h-3.5 text-purple-600" />;
+        return <UserCheck className="w-3.5 h-3.5 text-blue-600" />;
       case 'ai_inference':
-        return <Sparkles className="w-3.5 h-3.5 text-purple-500" />;
+        return <Camera className="w-3.5 h-3.5 text-brand-orange" />;
       case 'sensor_candidate':
         return <Activity className="w-3.5 h-3.5 text-emerald-600" />;
       case 'authority_action':
@@ -115,19 +114,19 @@ export const HazardTrustTimeline: React.FC<HazardTrustTimelineProps> = ({ hazard
           </div>
         </div>
 
-        {/* AI Suggestion Bar (Distinctly labeled as a suggestion, not a verified fact) */}
+        {/* Technical Distress Suggestion (Distinctly labeled as a suggestion, not a verified fact) */}
         {evidence.aiSuggestion && (
-          <div className="bg-purple-50/80 border border-purple-200/80 p-2.5 rounded-xl text-xs flex items-center justify-between gap-2">
+          <div className="bg-brand-warm-white border border-brand-neutral-grey p-2.5 rounded-xl text-xs flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-purple-600 flex-shrink-0" />
+              <Camera className="w-4 h-4 text-brand-orange flex-shrink-0" />
               <div>
-                <span className="font-bold text-purple-900">AI Model Suggestion: </span>
-                <span className="text-purple-800">{evidence.aiSuggestion.category}</span>
-                <span className="text-purple-600 text-[11px] ml-1">({evidence.aiSuggestion.damageType})</span>
+                <span className="font-bold text-brand-navy">Distress Tag: </span>
+                <span className="text-brand-slate">{evidence.aiSuggestion.category}</span>
+                <span className="text-brand-slate-light text-[11px] ml-1">({evidence.aiSuggestion.damageType})</span>
               </div>
             </div>
-            <span className="text-[11px] bg-white px-2 py-0.5 rounded font-mono font-bold text-purple-800 border border-purple-200">
-              {Math.round(evidence.aiSuggestion.confidence * 100)}% match
+            <span className="text-[11px] bg-white px-2 py-0.5 rounded font-mono font-bold text-brand-navy border border-brand-neutral-grey">
+              RDD2022
             </span>
           </div>
         )}

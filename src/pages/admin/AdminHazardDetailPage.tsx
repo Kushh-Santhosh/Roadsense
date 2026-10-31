@@ -11,7 +11,7 @@ import {
   Clock,
   CheckCircle2,
   AlertTriangle,
-  Sparkles,
+  Camera,
   Activity,
   Upload,
   FileText,
@@ -155,9 +155,9 @@ export const AdminHazardDetailPage: React.FC = () => {
                 <StatusBadge status={hazard.status} />
               )}
               {hazard.aiDetected && (
-                <span className="px-2.5 py-1 rounded-full bg-purple-50 text-purple-700 text-xs font-bold border border-purple-200 flex items-center gap-1">
-                  <Sparkles className="w-3 h-3 text-purple-600" />
-                  AI RDD2022 Classified
+                <span className="px-2.5 py-1 rounded-full bg-slate-100 text-brand-slate text-xs font-semibold border border-slate-200 flex items-center gap-1">
+                  <Camera className="w-3 h-3 text-brand-orange" />
+                  RDD2022 Distress Tagged
                 </span>
               )}
             </div>

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { StorageService } from '../services/storageService';
 import { Logo } from '../components/Logo';
-import { Bike, Building2, ArrowRight, Shield, Sparkles } from 'lucide-react';
+import { Bike, Building2, ArrowRight, Shield } from 'lucide-react';
 
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();

@@ -3,15 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import { AIDetectionService, RoadScanResult, BENCHMARK_SAMPLE_IMAGES, SampleRoadImage } from '../services/aiDetectionService';
 import { HazardCategory } from '../types';
 import {
+  Camera,
   Upload,
-  Sparkles,
   CheckCircle2,
   RefreshCw,
   ArrowRight,
   Info,
   AlertTriangle,
   Layers,
-  FileCode2
+  FileCode2,
+  Eye
 } from 'lucide-react';
 
 export const RoadScanAIPage: React.FC = () => {
@@ -38,7 +39,7 @@ export const RoadScanAIPage: React.FC = () => {
         setScanResult(result);
         setUserConfirmedCategory(result.mappedCategory);
       } catch (err) {
-        console.error('AI inspection failed:', err);
+        console.error('Inspection processing failed:', err);
       } finally {
         setIsAnalyzing(false);
       }
@@ -85,15 +86,15 @@ export const RoadScanAIPage: React.FC = () => {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-purple-700 mb-1">
-              <Sparkles className="w-4 h-4 text-purple-600" />
-              RDD2022 Distress Morphology • Illustrative Prototype
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-brand-slate mb-1">
+              <Camera className="w-4 h-4 text-brand-orange" />
+              Technical Capability • RDD2022 Distress Morphology
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-brand-navy tracking-tight">
-              RoadScan AI Inspector
+              Road Photo Inspection
             </h1>
             <p className="text-xs sm:text-sm text-brand-slate mt-1 max-w-2xl leading-relaxed">
-              Demonstration workbench illustrating how road distress classifications aligned with the international RDD2022 taxonomy (D40, D20, D00, D10) map to road hazard alerts.
+              Technical demonstration illustrating how road distress classifications aligned with the international RDD2022 taxonomy (D40, D20, D00, D10) map to road hazard categories.
             </p>
           </div>
 
@@ -116,7 +117,7 @@ export const RoadScanAIPage: React.FC = () => {
             <button
               onClick={() => handleAnalyze(currentImageUrl)}
               disabled={isAnalyzing}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white border border-brand-neutral-grey text-brand-navy text-xs font-bold hover:bg-brand-soft-blue transition-all cursor-pointer"
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white border border-brand-neutral-grey text-brand-navy text-xs font-bold hover:bg-slate-50 transition-all cursor-pointer"
             >
               <RefreshCw className={`w-4 h-4 text-brand-slate ${isAnalyzing ? 'animate-spin' : ''}`} />
               Re-Scan
@@ -124,12 +125,12 @@ export const RoadScanAIPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Mandatory Honest AI Disclaimer Banner */}
-        <div className="bg-amber-50 border border-amber-300/80 rounded-2xl p-4 flex items-start gap-3 shadow-subtle">
+        {/* Mandatory Honest AI Notice Banner */}
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3 shadow-subtle">
           <AlertTriangle className="w-5 h-5 text-amber-700 flex-shrink-0 mt-0.5" />
           <div className="text-xs space-y-1">
             <div className="font-extrabold text-amber-900 uppercase tracking-wide">
-              {scanResult?.inferenceNotice || 'Illustrative classification — actual model inference not connected.'}
+              Illustrative classification — actual model inference not connected.
             </div>
             <p className="text-amber-800 leading-relaxed">
               The road damage morphology samples below are <strong>illustrative vector diagrams (SVG)</strong>, not actual road photographs and not proof of live machine learning model inference. Actual AI inference is only claimed when a real compatible model (e.g. ONNX Web Runtime / TensorFlow.js) executes. Human rider review and confirmation is always required before reporting.
@@ -138,7 +139,7 @@ export const RoadScanAIPage: React.FC = () => {
         </div>
 
         {/* Benchmark Test Samples Selector */}
-        <div className="bg-white rounded-3xl p-5 border border-brand-neutral-grey shadow-subtle">
+        <div className="bg-white rounded-2xl p-5 border border-brand-neutral-grey shadow-subtle">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-bold text-brand-navy uppercase tracking-wider">
               RDD2022 Distress Morphology (Illustrative Vector Diagrams — Not Photographs)
@@ -155,24 +156,24 @@ export const RoadScanAIPage: React.FC = () => {
                 <button
                   key={sample.id}
                   onClick={() => handleSelectBenchmark(sample)}
-                  className={`p-2.5 rounded-2xl border text-left transition-all flex flex-col justify-between group ${
+                  className={`p-2.5 rounded-xl border text-left transition-all flex flex-col justify-between group cursor-pointer ${
                     isSelected
-                      ? 'border-purple-600 bg-purple-50/70 ring-2 ring-purple-600/30'
+                      ? 'border-brand-orange bg-amber-50/60 ring-2 ring-brand-orange/20'
                       : 'border-brand-neutral-grey hover:border-slate-300 bg-white'
                   }`}
                 >
-                  <div className="h-20 w-full rounded-xl overflow-hidden bg-slate-100 mb-2 relative">
+                  <div className="h-20 w-full rounded-lg overflow-hidden bg-slate-100 mb-2 relative">
                     <img
                       src={sample.url}
                       alt={sample.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                     />
                     <span className="absolute top-1 left-1 bg-brand-navy/90 text-white text-[9px] font-bold px-1.5 py-0.5 rounded tracking-wider">
-                      SVG ILLUSTRATION
+                      SVG DIAGRAM
                     </span>
                   </div>
                   <div>
-                    <span className="text-[10px] font-bold text-purple-700 uppercase tracking-wider block">
+                    <span className="text-[10px] font-bold text-brand-slate uppercase tracking-wider block">
                       Code: {sample.rddCode}
                     </span>
                     <span className="text-xs font-bold text-brand-navy line-clamp-1">
@@ -191,19 +192,19 @@ export const RoadScanAIPage: React.FC = () => {
         {/* Inspection Workbench Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left 7 Columns: Image Viewport with Bounding Box Overlay */}
-          <div className="lg:col-span-7 bg-white rounded-3xl p-5 border border-brand-neutral-grey shadow-subtle flex flex-col">
+          <div className="lg:col-span-7 bg-white rounded-2xl p-5 border border-brand-neutral-grey shadow-subtle flex flex-col">
             <div className="flex items-center justify-between mb-3 text-xs">
               <span className="font-bold text-brand-navy uppercase tracking-wider flex items-center gap-1.5">
                 <Layers className="w-4 h-4 text-brand-orange" />
-                Vision Inspection Viewport
+                Photo Inspection Viewport
               </span>
               <span className="text-[11px] font-mono text-brand-slate">
-                Runtime: Client Heuristic (Edge ONNX Disconnected)
+                Mode: Client Heuristic (Edge Model Disconnected)
               </span>
             </div>
 
             {/* Canvas/Image Box */}
-            <div className="relative rounded-2xl overflow-hidden bg-slate-950 flex-1 min-h-[380px] flex items-center justify-center">
+            <div className="relative rounded-xl overflow-hidden bg-slate-950 flex-1 min-h-[380px] flex items-center justify-center">
               <img
                 ref={imageRef}
                 src={currentImageUrl}
@@ -214,7 +215,7 @@ export const RoadScanAIPage: React.FC = () => {
               {/* Bounding Box Render */}
               {scanResult && !isAnalyzing && (
                 <div
-                  className="absolute border-2 border-brand-orange bg-brand-orange/15 rounded-md pointer-events-none transition-all duration-300 shadow-elevated"
+                  className="absolute border-2 border-brand-orange bg-brand-orange/15 rounded pointer-events-none transition-all duration-300"
                   style={{
                     top: `${scanResult.boundingBox.ymin * 100}%`,
                     left: `${scanResult.boundingBox.xmin * 100}%`,
@@ -222,64 +223,53 @@ export const RoadScanAIPage: React.FC = () => {
                     height: `${(scanResult.boundingBox.ymax - scanResult.boundingBox.ymin) * 100}%`
                   }}
                 >
-                  {/* Floating Class Tag above Bounding Box */}
-                  <div className="absolute -top-7 left-0 bg-brand-orange text-white text-[11px] font-bold px-2 py-0.5 rounded shadow-sm flex items-center gap-1 whitespace-nowrap">
-                    <span>{scanResult.detectedCategory}</span>
-                    <span className="bg-white/20 px-1 rounded text-[10px]">
-                      Illustrative
-                    </span>
+                  <div className="absolute -top-6 left-0 bg-brand-orange text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-sm whitespace-nowrap">
+                    {scanResult.detectedCategory} (Illustrative)
                   </div>
                 </div>
               )}
 
-              {/* Inference Loading Overlay */}
+              {/* Loading Overlay */}
               {isAnalyzing && (
-                <div className="absolute inset-0 bg-brand-navy/80 backdrop-blur-sm flex flex-col items-center justify-center text-white space-y-3">
-                  <div className="w-12 h-12 border-3 border-brand-orange border-t-transparent rounded-full animate-spin" />
-                  <div className="text-sm font-bold">Processing Raster Features...</div>
-                  <div className="text-xs text-brand-slate-light">
-                    Evaluating luminance gradients and distress vectors
-                  </div>
+                <div className="absolute inset-0 bg-brand-navy/80 backdrop-blur-xs flex flex-col items-center justify-center text-white space-y-3">
+                  <div className="w-10 h-10 border-2 border-brand-orange border-t-transparent rounded-full animate-spin" />
+                  <div className="text-xs font-bold">Evaluating Raster Features...</div>
                 </div>
               )}
             </div>
 
             <div className="mt-3 flex items-center justify-between text-xs text-brand-slate">
               <span>Bounding box indicates highest probability distress zone.</span>
-              <span>Coordinates: [{scanResult?.boundingBox.ymin.toFixed(2)}, {scanResult?.boundingBox.xmin.toFixed(2)}, {scanResult?.boundingBox.ymax.toFixed(2)}, {scanResult?.boundingBox.xmax.toFixed(2)}]</span>
+              <span className="font-mono text-[11px]">[{scanResult?.boundingBox.ymin.toFixed(2)}, {scanResult?.boundingBox.xmin.toFixed(2)}, {scanResult?.boundingBox.ymax.toFixed(2)}, {scanResult?.boundingBox.xmax.toFixed(2)}]</span>
             </div>
           </div>
 
           {/* Right 5 Columns: Inspection Telemetry & Decision Panel */}
           <div className="lg:col-span-5 space-y-5">
-            {/* Detection Card */}
-            <div className="bg-white rounded-3xl p-6 border border-brand-neutral-grey shadow-subtle space-y-4">
+            <div className="bg-white rounded-2xl p-5 border border-brand-neutral-grey shadow-subtle space-y-4">
               <div className="flex items-center justify-between pb-3 border-b border-brand-neutral-grey">
                 <div>
-                  <span className="text-[11px] font-bold text-purple-700 uppercase tracking-wider">
-                    Distress Classification
+                  <span className="text-[11px] font-bold text-brand-slate uppercase tracking-wider">
+                    Morphology Classification
                   </span>
-                  <h3 className="text-xl font-extrabold text-brand-navy mt-0.5">
+                  <h3 className="text-lg font-extrabold text-brand-navy mt-0.5">
                     {scanResult?.detectedCategory || 'Analyzing...'}
                   </h3>
                 </div>
                 <div className="text-right">
-                  <div className="text-xl font-black text-brand-slate">
-                    {scanResult?.confidence !== null ? `${Math.round((scanResult?.confidence || 0) * 100)}%` : 'Disconnected'}
-                  </div>
-                  <span className="text-[10px] text-amber-700 font-bold block">
-                    Actual Model Disconnected
+                  <span className="px-2 py-1 rounded bg-slate-100 text-brand-slate font-bold text-xs">
+                    Model Disconnected
                   </span>
                 </div>
               </div>
 
-              {/* Honest AI Status Banner inside Card */}
-              <div className="bg-amber-50 p-2.5 rounded-xl border border-amber-200 text-[11px] text-amber-900 font-medium leading-snug">
+              {/* Honest AI Status Banner */}
+              <div className="bg-amber-50 p-2.5 rounded-lg border border-amber-200 text-[11px] text-amber-900 font-medium">
                 <span className="font-bold">Status:</span> Illustrative classification — actual model inference not connected.
               </div>
 
               {/* Details List */}
-              <div className="space-y-2.5 text-xs">
+              <div className="space-y-2 text-xs">
                 <div className="flex justify-between py-1 border-b border-slate-100">
                   <span className="text-brand-slate">RDD2022 Code:</span>
                   <span className="font-mono font-bold text-brand-navy">{scanResult?.rddClassCode}</span>
@@ -296,14 +286,10 @@ export const RoadScanAIPage: React.FC = () => {
                   <span className="text-brand-slate">Heuristic Execution Time:</span>
                   <span className="font-mono text-emerald-600 font-bold">{scanResult?.inferenceTimeMs} ms (Measured)</span>
                 </div>
-                <div className="flex justify-between py-1 border-b border-slate-100">
-                  <span className="text-brand-slate">Illustrative Score:</span>
-                  <span className="font-mono text-brand-navy font-semibold">{scanResult?.heuristicScore} / 100</span>
-                </div>
               </div>
 
               {/* Description */}
-              <div className="bg-brand-warm-white p-3.5 rounded-2xl border border-brand-neutral-grey/80 text-xs text-brand-slate space-y-1">
+              <div className="bg-brand-warm-white p-3 rounded-xl border border-brand-neutral-grey text-xs text-brand-slate space-y-1">
                 <div className="font-bold text-brand-navy flex items-center gap-1.5">
                   <Info className="w-3.5 h-3.5 text-brand-orange" />
                   Engineering Assessment
@@ -314,7 +300,7 @@ export const RoadScanAIPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* User Confirmation / Correction Dropdown */}
+              {/* User Confirmation Dropdown */}
               <div className="space-y-1.5 pt-2">
                 <label className="text-xs font-bold text-brand-navy block">
                   Human Rider Review & Confirmation:
@@ -328,13 +314,14 @@ export const RoadScanAIPage: React.FC = () => {
                   <option value="road_cracks">Road Cracks (D00 / D10 / D20)</option>
                   <option value="uneven_surface">Uneven Road Surface</option>
                   <option value="damaged_edge">Damaged Road Edge</option>
-                  <option value="open_manhole">Open Manhole</option>
-                  <option value="waterlogging">Waterlogging</option>
+                  <option value="open_drain">Open Drain</option>
+                  <option value="damaged_manhole">Damaged Manhole Cover</option>
+                  <option value="waterlogged_road">Waterlogged Road</option>
                   <option value="road_construction">Road Construction</option>
                   <option value="other">Other Road Hazard</option>
                 </select>
                 <span className="text-[11px] text-brand-slate block">
-                  Human-in-the-loop confirmation ensures AI results are never published blindly.
+                  Human-in-the-loop review ensures distress images are confirmed by riders before filing.
                 </span>
               </div>
 
@@ -342,10 +329,10 @@ export const RoadScanAIPage: React.FC = () => {
               <button
                 onClick={handleProceedToReport}
                 disabled={!scanResult || isAnalyzing}
-                className="w-full py-3.5 px-4 rounded-2xl bg-brand-orange hover:bg-brand-orange-hover text-white font-extrabold text-sm shadow-md shadow-brand-orange/20 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                className="w-full py-3 px-4 rounded-xl bg-brand-orange hover:bg-brand-orange-hover text-white font-bold text-xs transition-all shadow-subtle flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
               >
                 <CheckCircle2 className="w-4 h-4" />
-                Attach AI Detection to Hazard Report
+                Attach Photo to Hazard Report
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>

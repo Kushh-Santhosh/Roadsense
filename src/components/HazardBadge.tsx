@@ -87,7 +87,7 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, size = 'md' })
     },
     COMMUNITY_CORROBORATED: {
       label: 'Community Corroborated',
-      bg: 'bg-purple-50 text-purple-700 border-purple-200',
+      bg: 'bg-blue-50 text-brand-navy border-blue-200',
       icon: ShieldCheck
     },
     RECENTLY_CONFIRMED: {
@@ -128,7 +128,7 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, size = 'md' })
     },
     community_confirmed: {
       label: 'Community Corroborated',
-      bg: 'bg-purple-50 text-purple-700 border-purple-200',
+      bg: 'bg-blue-50 text-brand-navy border-blue-200',
       icon: ShieldCheck
     },
     forwarded_review: {

@@ -253,7 +253,7 @@ export const StorageService = {
     aiClassification?: HazardReport['aiClassification'];
     sensorTriggered?: boolean;
     duplicateThresholdMeters?: number;
-  }): { hazard: Hazard; isDuplicateGrouped: boolean } {
+  }): { hazard: Hazard; report: HazardReport; isDuplicateGrouped: boolean; isDuplicate: boolean } {
     this.init();
     const currentUser = this.getCurrentUser();
     const hazards = this.getHazards();
@@ -474,7 +474,38 @@ export const StorageService = {
       localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
     }
 
-    return { hazard: targetHazard, isDuplicateGrouped };
+    return { hazard: targetHazard, report: newReport, isDuplicateGrouped, isDuplicate: isDuplicateGrouped };
+  },
+
+  getReports(): HazardReport[] {
+    const hazards = this.getHazards();
+    const reports: HazardReport[] = [];
+    hazards.forEach((h) => {
+      if (h.reports) reports.push(...h.reports);
+    });
+    return reports;
+  },
+
+  addReport(params: {
+    latitude: number;
+    longitude: number;
+    address: string;
+    locality?: string;
+    category: HazardCategory;
+    additionalLabel?: 'POTENTIALLY_HIDDEN_SURFACE_HAZARD';
+    severity: HazardSeverity;
+    description?: string;
+    imageUrl?: string;
+    aiClassification?: HazardReport['aiClassification'];
+    sensorTriggered?: boolean;
+    duplicateThresholdMeters?: number;
+  }) {
+    return this.createHazardReport({
+      ...params,
+      locality: params.locality || 'Bengaluru',
+      description: params.description || `Reported ${params.category.replace('_', ' ')} near ${params.address}.`,
+      imageUrl: params.imageUrl || '/samples/pothole-d40.svg'
+    });
   },
 
   // Confirm or vote on a hazard (with evidence attribution & trust timeline)

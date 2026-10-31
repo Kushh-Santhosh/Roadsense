@@ -17,78 +17,87 @@ export const Logo: React.FC<LogoProps> = ({
     sm: 'w-6 h-6',
     md: 'w-8 h-8',
     lg: 'w-10 h-10',
-    xl: 'w-14 h-14'
+    xl: 'w-12 h-12'
   };
 
   const textSizes = {
-    sm: 'text-lg',
-    md: 'text-xl',
-    lg: 'text-2xl',
-    xl: 'text-4xl'
+    sm: 'text-base',
+    md: 'text-lg',
+    lg: 'text-xl',
+    xl: 'text-3xl'
   };
 
   const isDark = theme === 'dark';
 
   return (
     <div className={`inline-flex items-center gap-2.5 font-sans select-none ${className}`}>
-      {/* Original SVG Brand Symbol: Road perspective inside safety pin with radar pulse */}
+      {/* Original Vector RoadSense Mark: Curving Road 'R' with Waypoint Apex */}
       <svg
-        className={`${iconSizes[size]} flex-shrink-0 transition-transform duration-200 hover:scale-105`}
+        className={`${iconSizes[size]} flex-shrink-0 transition-transform duration-150 group-hover:scale-[1.03]`}
         viewBox="0 0 100 100"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
       >
-        {/* Outer Protective Marker Body */}
-        <path
-          d="M50 8C31 8 16 23.5 16 43C16 63 46.5 89.5 48.8 91.5C49.5 92.1 50.5 92.1 51.2 91.5C53.5 89.5 84 63 84 43C84 23.5 69 8 50 8Z"
+        {/* Base container squircle */}
+        <rect
+          x="6"
+          y="6"
+          width="88"
+          height="88"
+          rx="24"
           fill={isDark ? '#F8FAFC' : '#142536'}
         />
 
-        {/* Outer Awareness Pulse Arc (Early Warning Radar) */}
+        {/* Outer road sub-base */}
         <path
-          d="M32 20C43 14 57 14 68 20"
-          stroke="#F28C28"
-          strokeWidth="3.5"
-          strokeLinecap="round"
-        />
-        <path
-          d="M38 14C45 10.5 55 10.5 62 14"
-          stroke="#F28C28"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeOpacity="0.75"
-        />
-
-        {/* Perspective Highway Geometry */}
-        <path
-          d="M36 68L44 26C44.5 24 47 22.5 49.5 22.5H50.5C53 22.5 55.5 24 56 26L64 68"
-          stroke={isDark ? '#142536' : '#F8FAFC'}
-          strokeWidth="5.5"
+          d="M26 78V42C26 30.9543 34.9543 22 46 22H54C65.0457 22 74 30.9543 74 42C74 53.0457 65.0457 62 54 62H42"
+          stroke={isDark ? '#E2E8F0' : '#2A3D52'}
+          strokeWidth="14"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
 
-        {/* Road Dynamic Dashes (Movement) */}
+        {/* Main Sweeping Carriageway */}
         <path
-          d="M50 31V37M50 44V51M50 58V65"
-          stroke="#F28C28"
-          strokeWidth="2.8"
+          d="M26 78V42C26 30.9543 34.9543 22 46 22H54C65.0457 22 74 30.9543 74 42C74 53.0457 65.0457 62 54 62H40L68 78"
+          stroke={isDark ? '#142536' : '#F8FAFC'}
+          strokeWidth="9"
           strokeLinecap="round"
+          strokeLinejoin="round"
         />
 
-        {/* Center Detection Point */}
-        <circle cx="50" cy="45" r="3.5" fill="#F28C28" />
+        {/* Road Dynamic Divider Strip in Orange */}
+        <path
+          d="M26 74V56M26 44C26 34.5 32 28 42 28M54 28C62 28 67 34 67 42C67 50 62 56 54 56M46 62L62 72"
+          stroke="#F28C28"
+          strokeWidth="3.2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+
+        {/* Apex Waypoint Node */}
+        <circle cx="50" cy="22" r="4.5" fill="#F28C28" />
+        <circle cx="50" cy="22" r="2" fill={isDark ? '#142536' : '#FFFFFF'} />
       </svg>
 
       {variant !== 'icon-only' && (
         <div className="flex flex-col leading-none">
           <div className="flex items-center">
-            <span className={`font-extrabold tracking-tight ${textSizes[size]} ${isDark ? 'text-white' : 'text-brand-navy'}`}>
+            <span
+              className={`font-extrabold tracking-tight ${textSizes[size]} ${
+                isDark ? 'text-white' : 'text-brand-navy'
+              }`}
+            >
               Road<span className="text-brand-orange">Sense</span>
             </span>
           </div>
           {size !== 'sm' && (
-            <span className={`text-[10px] tracking-wide mt-1 font-semibold uppercase text-brand-slate ${isDark ? 'text-brand-slate-light' : 'text-brand-slate'}`}>
+            <span
+              className={`text-[9.5px] tracking-wider mt-0.5 font-bold uppercase ${
+                isDark ? 'text-slate-300' : 'text-brand-slate'
+              }`}
+            >
               Road Safety Intelligence
             </span>
           )}
@@ -97,4 +106,3 @@ export const Logo: React.FC<LogoProps> = ({
     </div>
   );
 };
-

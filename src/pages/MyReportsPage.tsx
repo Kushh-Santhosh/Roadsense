@@ -10,7 +10,6 @@ import {
   ThumbsUp,
   AlertTriangle,
   CheckCircle2,
-  Sparkles,
   Activity,
   ArrowRight,
   Plus
@@ -62,22 +61,26 @@ export const MyReportsPage: React.FC = () => {
           <div className="bg-white p-4 rounded-2xl border border-brand-neutral-grey shadow-subtle">
             <span className="text-xs text-brand-slate uppercase font-semibold">Total Submissions</span>
             <div className="text-2xl font-extrabold text-brand-navy mt-1">{currentUser.reportsCount}</div>
-            <div className="text-[11px] text-brand-slate-light">+30 pts per submission</div>
+            <div className="text-[11px] text-brand-slate-light">Submitted to network</div>
           </div>
           <div className="bg-white p-4 rounded-2xl border border-brand-neutral-grey shadow-subtle">
             <span className="text-xs text-brand-slate uppercase font-semibold">Confirmations</span>
             <div className="text-2xl font-extrabold text-brand-navy mt-1">{currentUser.confirmationsCount}</div>
-            <div className="text-[11px] text-brand-slate-light">+15 pts per verification</div>
+            <div className="text-[11px] text-brand-slate-light">Commuter verifications</div>
           </div>
           <div className="bg-white p-4 rounded-2xl border border-brand-neutral-grey shadow-subtle">
-            <span className="text-xs text-brand-slate uppercase font-semibold">Trust Rating</span>
-            <div className="text-2xl font-extrabold text-purple-700 mt-1">{currentUser.trustScore}%</div>
-            <div className="text-[11px] text-brand-slate-light">High reputation contributor</div>
+            <span className="text-xs text-brand-slate uppercase font-semibold">Active Hazards</span>
+            <div className="text-2xl font-extrabold text-brand-orange mt-1">
+              {userReports.filter((h) => h.status !== 'resolved').length}
+            </div>
+            <div className="text-[11px] text-brand-slate-light">Pending municipal repair</div>
           </div>
           <div className="bg-white p-4 rounded-2xl border border-brand-neutral-grey shadow-subtle">
-            <span className="text-xs text-brand-slate uppercase font-semibold">Impact Badges</span>
-            <div className="text-2xl font-extrabold text-emerald-600 mt-1">Safety Scout</div>
-            <div className="text-[11px] text-brand-slate-light">Level 3 Road Guardian</div>
+            <span className="text-xs text-brand-slate uppercase font-semibold">Repaired</span>
+            <div className="text-2xl font-extrabold text-emerald-600 mt-1">
+              {userReports.filter((h) => h.status === 'resolved').length}
+            </div>
+            <div className="text-[11px] text-brand-slate-light">Confirmed remediated</div>
           </div>
         </div>
 
