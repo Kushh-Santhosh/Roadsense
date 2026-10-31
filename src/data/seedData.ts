@@ -472,8 +472,8 @@ export const INITIAL_HAZARDS: Hazard[] = [
     longitude: 77.7011,
     address: 'Service Road adjacent to Marathahalli Bridge, ORR Junction',
     locality: 'Marathahalli',
-    status: 'UNDER_REVIEW',
-    canonicalStatus: 'UNDER_REVIEW',
+    status: 'STALE_NEEDS_RECONFIRMATION',
+    canonicalStatus: 'STALE_NEEDS_RECONFIRMATION',
     confidenceScore: 78,
     reportsCount: 2,
     confirmationsCount: 6,
@@ -481,7 +481,7 @@ export const INITIAL_HAZARDS: Hazard[] = [
     noLongerPresentVotes: 0,
     primaryImageUrl: 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=800&q=80',
     firstReportedAt: '2026-10-29T14:15:00Z',
-    lastUpdatedAt: '2026-10-31T04:20:00Z',
+    lastUpdatedAt: '2026-10-31T02:00:00Z',
     aiDetected: true,
     sensorDetected: false,
     isDemo: true,
@@ -495,11 +495,21 @@ export const INITIAL_HAZARDS: Hazard[] = [
       independentRiderConfirmations: 3,
       uniqueUserIdsConfirmed: ['user-ananya'],
       hasPhotoEvidence: true,
-      lastConfirmedAt: '2026-10-31T04:20:00Z',
+      lastConfirmedAt: '2026-10-29T14:15:00Z',
       sensorCandidateCount: 0,
-      isDisputed: false
+      isDisputed: false,
+      staleReason: 'No rider confirmation received in the last 36 hours (waterlogged revalidation interval: 24h). Hazard preserved with all historical evidence awaiting fresher rider vote.'
     },
     trustTimeline: [
+      {
+        id: 'tt-503',
+        stage: 'STALE_NEEDS_RECONFIRMATION',
+        timestamp: '2026-10-31T02:00:00Z',
+        title: 'Marked Stale — Needs Rider Reconfirmation',
+        actor: 'RoadSense Freshness Monitor (n8n Automation)',
+        details: 'Exceeded 24-hour waterlogged revalidation interval without fresh rider signal. Report preserved with full evidence history awaiting commuter reconfirmation.',
+        evidenceType: 'n8n_automation'
+      },
       {
         id: 'tt-501',
         stage: 'NEWLY_REPORTED',

@@ -50,3 +50,4 @@ export function getActiveTileProvider(): TileProvider {
   }
   return MAP_CONFIG.providers[MAP_CONFIG.primaryProvider] || MAP_CONFIG.providers.osm;
 }
+

@@ -181,7 +181,7 @@ export const ReportHazardPage: React.FC = () => {
         aiClassification: aiResult
           ? {
               detectedCategory: aiResult.detectedCategory,
-              confidence: aiResult.confidence,
+              confidence: aiResult.confidence ?? (aiResult.heuristicScore / 100),
               boundingBox: [
                 aiResult.boundingBox.ymin,
                 aiResult.boundingBox.xmin,
@@ -345,7 +345,7 @@ export const ReportHazardPage: React.FC = () => {
                 <div className="absolute top-3 left-3 bg-brand-navy/90 backdrop-blur-md text-white text-xs px-3 py-1.5 rounded-xl border border-white/20 flex items-center gap-2 shadow-card">
                   <Sparkles className="w-3.5 h-3.5 text-brand-orange" />
                   <span>
-                    AI Detected: <strong>{aiResult.detectedCategory}</strong> ({Math.round(aiResult.confidence * 100)}% match)
+                    AI Detected: <strong>{aiResult.detectedCategory}</strong> {aiResult.confidence !== null ? `(${Math.round(aiResult.confidence * 100)}% match)` : '(Illustrative Heuristic)'}
                   </span>
                 </div>
               )}

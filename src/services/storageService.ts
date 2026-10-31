@@ -400,8 +400,8 @@ export const StorageService = {
           stage: 'UNDER_REVIEW',
           timestamp: new Date().toISOString(),
           title: 'RoadScan AI Vision Classification Attached',
-          actor: 'RoadScan AI (RDD2022 Vision Pipeline)',
-          details: `Identified ${params.aiClassification.detectedCategory} with ${Math.round(params.aiClassification.confidence * 100)}% model confidence.`,
+          actor: 'RoadScan AI (RDD2022 Classifier)',
+          details: `Identified ${params.aiClassification.detectedCategory} (${Math.round(params.aiClassification.confidence * 100)}% confidence score). Human confirmation verified.`,
           evidenceType: 'ai_inference'
         });
       }

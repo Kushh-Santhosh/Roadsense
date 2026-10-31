@@ -10,12 +10,15 @@ export interface BoundingBox {
 export interface RoadScanResult {
   detectedCategory: string;
   rddClassCode: 'D00' | 'D10' | 'D20' | 'D40' | 'NORMAL';
-  confidence: number;
+  isActualModelConnected: boolean;
+  inferenceNotice: string;
+  confidence: number | null; // null when real calibrated model is not connected
+  heuristicScore: number; // Transparent client-side heuristic value (0-100)
   damageType: string;
   mappedCategory: HazardCategory;
   suggestedSeverity: HazardSeverity;
   boundingBox: BoundingBox;
-  inferenceTimeMs: number;
+  inferenceTimeMs: number; // Actual measured execution time (no fabricated delay)
   modelIdentifier: string;
   description: string;
   maintenanceRecommendation: string;
@@ -28,48 +31,66 @@ export interface SampleRoadImage {
   url: string;
   expectedClass: string;
   rddCode: 'D00' | 'D10' | 'D20' | 'D40';
+  isIllustration: boolean;
+  assetType: 'vector_svg_illustration' | 'real_photograph';
 }
 
 export const BENCHMARK_SAMPLE_IMAGES: SampleRoadImage[] = [
   {
     id: 'sample-pothole',
-    title: 'High-Risk Crater Pothole (D40)',
-    description: 'Deep structural depression with broken aggregate and dark shadow cavity.',
+    title: 'Pothole Morphology (D40)',
+    description: 'Illustrative vector diagram of a structural depression with aggregate break and shadow cavity.',
     url: '/samples/pothole-d40.svg',
     expectedClass: 'Pothole (D40)',
-    rddCode: 'D40'
+    rddCode: 'D40',
+    isIllustration: true,
+    assetType: 'vector_svg_illustration'
   },
   {
     id: 'sample-alligator',
-    title: 'Fatigue Alligator Cracking (D20)',
-    description: 'Interconnected polygon fracture network from heavy wheel axle fatigue.',
+    title: 'Alligator Cracking Morphology (D20)',
+    description: 'Illustrative vector diagram of an interconnected polygonal fatigue crack matrix.',
     url: '/samples/alligator-d20.svg',
     expectedClass: 'Alligator Cracks (D20)',
-    rddCode: 'D20'
+    rddCode: 'D20',
+    isIllustration: true,
+    assetType: 'vector_svg_illustration'
   },
   {
     id: 'sample-longitudinal',
-    title: 'Longitudinal Wheelpath Crack (D00)',
-    description: 'Continuous linear fissure running parallel to the direction of vehicular travel.',
+    title: 'Longitudinal Crack Morphology (D00)',
+    description: 'Illustrative vector diagram of a linear fissure parallel to the direction of vehicular travel.',
     url: '/samples/longitudinal-d00.svg',
     expectedClass: 'Longitudinal Crack (D00)',
-    rddCode: 'D00'
+    rddCode: 'D00',
+    isIllustration: true,
+    assetType: 'vector_svg_illustration'
   },
   {
     id: 'sample-transverse',
-    title: 'Transverse Thermal Crack (D10)',
-    description: 'Perpendicular fracture across carriageway caused by thermal contraction.',
+    title: 'Transverse Crack Morphology (D10)',
+    description: 'Illustrative vector diagram of a cross-carriageway fracture caused by thermal contraction.',
     url: '/samples/transverse-d10.svg',
     expectedClass: 'Transverse Crack (D10)',
-    rddCode: 'D10'
+    rddCode: 'D10',
+    isIllustration: true,
+    assetType: 'vector_svg_illustration'
   }
 ];
 
 export const AIDetectionService = {
   /**
-   * Performs client-side image processing and RDD2022 model feature classification.
-   * Analyzes pixel luminance, vertical/horizontal gradient distribution, and dark shadow clusters
-   * to compute bounding boxes and classify road distress.
+   * Reports whether a real neural inference model runtime (e.g. ONNX Web, TensorFlow.js)
+   * is currently loaded and connected.
+   */
+  isActualModelConnected(): boolean {
+    return false; // Honest status: Real ML runtime is disconnected in this client prototype
+  },
+
+  /**
+   * Analyzes an image element using transparent client-side raster feature heuristics.
+   * NOTE: Measures actual elapsed execution time with zero artificial sleep delays.
+   * When a real ML model is not loaded, confidence is kept null and an honest disclaimer is returned.
    */
   async analyzeRoadImage(imageElement: HTMLImageElement | HTMLCanvasElement): Promise<RoadScanResult> {
     const startTime = performance.now();
@@ -119,7 +140,7 @@ export const AIDetectionService = {
           if (y > maxY) maxY = y;
         }
 
-        // Horizontal gradient (Sobel-like)
+        // Horizontal gradient
         const leftIdx = (y * width + (x - 1)) * 4;
         const rightIdx = (y * width + (x + 1)) * 4;
         const hGrad = Math.abs(data[rightIdx] - data[leftIdx]);
@@ -133,7 +154,7 @@ export const AIDetectionService = {
       }
     }
 
-    // Fallback coordinates if box is too small or uniform
+    // Default bounded zone if anomaly is too small or uniform
     if (maxX <= minX + 20 || maxY <= minY + 20) {
       minX = Math.round(width * 0.22);
       maxX = Math.round(width * 0.78);
@@ -151,29 +172,26 @@ export const AIDetectionService = {
     const boxHeight = normYmax - normYmin;
     const aspectRatio = boxWidth / (boxHeight || 0.01);
 
-    // Artificial inference delay to reflect real model forward pass (200ms - 450ms)
-    await new Promise((res) => setTimeout(res, 380));
-
-    // Classification decision rule aligned with RDD2022 standards:
+    // Classification decision rule aligned with RDD2022 taxonomy classes:
     let rddClassCode: 'D00' | 'D10' | 'D20' | 'D40';
     let detectedCategory = '';
     let mappedCategory: HazardCategory = 'pothole';
     let damageType = '';
     let suggestedSeverity: HazardSeverity = 'high';
-    let baseConfidence = 0.88;
+    let heuristicScore = 80;
     let description = '';
     let maintenanceRecommendation = '';
 
     if (darkPixelCount > 3500 && (aspectRatio >= 0.7 && aspectRatio <= 1.5)) {
-      // Deep cavity / depression: Pothole (D40)
+      // Cavity / depression: Pothole (D40)
       rddClassCode = 'D40';
       detectedCategory = 'Pothole (D40)';
       mappedCategory = 'pothole';
-      damageType = 'Severe Cavity Depression';
+      damageType = 'Structural Cavity Depression';
       suggestedSeverity = 'critical';
-      baseConfidence = 0.93 + (Math.random() * 0.04);
-      description = 'Structural pavement breach exposing base-course aggregate. High sudden deceleration risk for two-wheelers.';
-      maintenanceRecommendation = 'Immediate cold-mix or hot bituminous patch filling required to prevent rim deformation.';
+      heuristicScore = 92;
+      description = 'Structural pavement breach exposing sub-base aggregate. Presents immediate rim deformation and swerve risk for two-wheelers.';
+      maintenanceRecommendation = 'Requires cold-mix asphalt patch or hot bituminous repair to restore road camber.';
     } else if (horizontalEdgeSum > verticalEdgeSum * 1.35) {
       // Transverse Crack (D10)
       rddClassCode = 'D10';
@@ -181,9 +199,9 @@ export const AIDetectionService = {
       mappedCategory = 'road_cracks';
       damageType = 'Cross-Carriageway Contraction Fissure';
       suggestedSeverity = 'moderate';
-      baseConfidence = 0.84 + (Math.random() * 0.05);
-      description = 'Perpendicular fissure running across the lane width caused by sub-base contraction.';
-      maintenanceRecommendation = 'Clean crack with compressed air and seal with elastomer-modified bitumen.';
+      heuristicScore = 82;
+      description = 'Perpendicular fissure running across the lane width caused by sub-base thermal expansion and contraction.';
+      maintenanceRecommendation = 'Clean crack channel with compressed air and seal with elastomer-modified bitumen.';
     } else if (verticalEdgeSum > horizontalEdgeSum * 1.35 || aspectRatio < 0.6) {
       // Longitudinal Crack (D00)
       rddClassCode = 'D00';
@@ -191,9 +209,9 @@ export const AIDetectionService = {
       mappedCategory = 'road_cracks';
       damageType = 'Wheelpath Longitudinal Fissure';
       suggestedSeverity = 'high';
-      baseConfidence = 0.89 + (Math.random() * 0.04);
-      description = 'Linear fissure running parallel to the direction of vehicular traffic along the wheel path.';
-      maintenanceRecommendation = 'Rout and apply rubberized asphalt crack sealant before moisture ingress causes edge collapse.';
+      heuristicScore = 86;
+      description = 'Linear fissure running parallel to the direction of vehicular traffic along the primary wheel path.';
+      maintenanceRecommendation = 'Rout and apply rubberized asphalt crack sealant before rainwater ingress causes edge collapse.';
     } else {
       // Alligator Crack (D20)
       rddClassCode = 'D20';
@@ -201,17 +219,25 @@ export const AIDetectionService = {
       mappedCategory = 'road_cracks';
       damageType = 'Interconnected Fatigue Matrix';
       suggestedSeverity = 'high';
-      baseConfidence = 0.91 + (Math.random() * 0.04);
-      description = 'Network of interconnected polygonal cracks resembling reptile skin, indicating subgrade structural fatigue.';
+      heuristicScore = 88;
+      description = 'Interconnected polygonal fatigue fractures resembling reptile skin, indicating structural subgrade fatigue.';
       maintenanceRecommendation = 'Mill top 40mm wearing layer and replace with heavy-duty bituminous concrete overlay.';
     }
 
-    const inferenceTimeMs = Math.round(performance.now() - startTime);
+    // Actual measured execution time with zero artificial sleep
+    const inferenceTimeMs = Math.max(1, Math.round(performance.now() - startTime));
+
+    const isConnected = this.isActualModelConnected();
 
     return {
       detectedCategory,
       rddClassCode,
-      confidence: Math.round(baseConfidence * 100) / 100,
+      isActualModelConnected: isConnected,
+      inferenceNotice: isConnected
+        ? 'Real neural network inference executed.'
+        : 'Illustrative classification — actual model inference not connected.',
+      confidence: isConnected ? 0.94 : null, // Null indicates no actual neural model confidence
+      heuristicScore,
       damageType,
       mappedCategory,
       suggestedSeverity,
@@ -222,10 +248,11 @@ export const AIDetectionService = {
         xmax: Number(normXmax.toFixed(2))
       },
       inferenceTimeMs,
-      modelIdentifier: 'RoadSense-RDD2022-EdgeVision (MobileNetV3-ONNX Pipeline)',
+      modelIdentifier: isConnected
+        ? 'RoadSense-RDD2022-EdgeVision (MobileNetV3 ONNX)'
+        : 'Illustrative Heuristic Engine (Edge ONNX Disconnected)',
       description,
       maintenanceRecommendation
     };
   }
 };
-
