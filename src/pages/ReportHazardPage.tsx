@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { StorageService } from '../services/storageService';
 import { AIDetectionService, RoadScanResult } from '../services/aiDetectionService';
+import { N8NService } from '../services/n8nService';
 import { HazardCategory, HazardSeverity } from '../types';
 import {
   Camera,
@@ -15,21 +16,24 @@ import {
   ArrowRight,
   Shield,
   Layers,
-  ChevronRight
+  ChevronRight,
+  Waves,
+  PhoneOff
 } from 'lucide-react';
 
-const CATEGORIES: { id: HazardCategory; label: string; icon: string; defaultSeverity: HazardSeverity }[] = [
-  { id: 'pothole', label: 'Pothole', icon: '🕳️', defaultSeverity: 'critical' },
-  { id: 'road_cracks', label: 'Road Cracks', icon: '⚡', defaultSeverity: 'high' },
-  { id: 'uneven_surface', label: 'Uneven Surface', icon: '〰️', defaultSeverity: 'moderate' },
-  { id: 'open_manhole', label: 'Open Manhole', icon: '⚠️', defaultSeverity: 'critical' },
-  { id: 'damaged_manhole', label: 'Damaged Manhole Cover', icon: '🪨', defaultSeverity: 'critical' },
-  { id: 'waterlogging', label: 'Waterlogging', icon: '🌊', defaultSeverity: 'high' },
-  { id: 'road_construction', label: 'Road Construction', icon: '🚧', defaultSeverity: 'high' },
-  { id: 'fallen_tree_debris', label: 'Fallen Tree / Debris', icon: '🪵', defaultSeverity: 'moderate' },
-  { id: 'exposed_utility', label: 'Exposed Utility / Drain', icon: '🔌', defaultSeverity: 'high' },
-  { id: 'damaged_edge', label: 'Damaged Road Edge', icon: '📉', defaultSeverity: 'high' },
-  { id: 'other', label: 'Other Road Hazard', icon: '📍', defaultSeverity: 'moderate' },
+const CATEGORIES: { id: HazardCategory; label: string; icon: string; defaultSeverity: HazardSeverity; description: string }[] = [
+  { id: 'pothole', label: 'Pothole', icon: '🕳️', defaultSeverity: 'critical', description: 'Deep structural cavity / rim trap' },
+  { id: 'road_cracks', label: 'Road Cracks', icon: '⚡', defaultSeverity: 'high', description: 'Fatigue alligator or longitudinal fissures' },
+  { id: 'uneven_surface', label: 'Uneven Road', icon: '〰️', defaultSeverity: 'moderate', description: 'Expansion joint bump or asphalt subsidence' },
+  { id: 'waterlogged_road', label: 'Waterlogged Road', icon: '🌊', defaultSeverity: 'critical', description: 'Standing water concealing surface condition' },
+  { id: 'potentially_hidden_surface_hazard', label: 'Hidden Surface Hazard', icon: '⚠️', defaultSeverity: 'critical', description: 'Unknown road condition obscured beneath puddle' },
+  { id: 'open_drain', label: 'Open Drain', icon: '🕳️', defaultSeverity: 'critical', description: 'Exposed culvert or stormwater duct' },
+  { id: 'damaged_manhole', label: 'Damaged Manhole Cover', icon: '🪨', defaultSeverity: 'critical', description: 'Sunken steel grating or broken concrete lid' },
+  { id: 'road_construction', label: 'Road Construction', icon: '🚧', defaultSeverity: 'high', description: 'Unbarricaded excavation or diversion' },
+  { id: 'loose_gravel_debris', label: 'Loose Gravel or Debris', icon: '🪨', defaultSeverity: 'high', description: 'Scattered stones causing tyre skid' },
+  { id: 'fallen_tree_obstruction', label: 'Fallen Tree or Obstruction', icon: '🪵', defaultSeverity: 'moderate', description: 'Branch, cable, or barrier blocking lane' },
+  { id: 'damaged_edge', label: 'Damaged Road Edge', icon: '📉', defaultSeverity: 'high', description: 'Collapsed road shoulder or curb drop' },
+  { id: 'other', label: 'Other Road Hazard', icon: '📍', defaultSeverity: 'moderate', description: 'Any other dangerous road condition' },
 ];
 
 export const ReportHazardPage: React.FC = () => {
@@ -39,6 +43,7 @@ export const ReportHazardPage: React.FC = () => {
 
   // Form State
   const [category, setCategory] = useState<HazardCategory>('pothole');
+  const [isWaterlogHiddenHazard, setIsWaterlogHiddenHazard] = useState(false);
   const [severity, setSeverity] = useState<HazardSeverity>('high');
   const [description, setDescription] = useState('');
   const [imageUrl, setImageUrl] = useState<string>('https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&w=800&q=80');
@@ -50,6 +55,7 @@ export const ReportHazardPage: React.FC = () => {
   const [locality, setLocality] = useState('Hebbal');
   const [gpsAcquired, setGpsAcquired] = useState(false);
   const [gpsLoading, setGpsLoading] = useState(false);
+  const [gpsError, setGpsError] = useState<string | null>(null);
 
   // AI Assistant State
   const [aiResult, setAiResult] = useState<RoadScanResult | null>(null);
@@ -57,9 +63,9 @@ export const ReportHazardPage: React.FC = () => {
 
   // Submission State
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submittedResult, setSubmittedResult] = useState<{ hazardId: string; isDuplicate: boolean } | null>(null);
+  const [submittedResult, setSubmittedResult] = useState<{ hazardId: string; isDuplicate: boolean; title: string } | null>(null);
 
-  // Check if routed with pre-analyzed AI result from /app/roadscan
+  // Check if routed with pre-analyzed AI result or sensor event from /app/roadscan or /app/ride
   useEffect(() => {
     if (location.state?.aiResult) {
       const res = location.state.aiResult as RoadScanResult;
@@ -71,6 +77,11 @@ export const ReportHazardPage: React.FC = () => {
         setImagePreview(location.state.imageUrl);
       }
     }
+    if (location.state?.coords) {
+      setCoords(location.state.coords);
+      setGpsAcquired(true);
+      setAddress('Detected Sensor Candidate Coordinates');
+    }
   }, [location.state]);
 
   // Auto-acquire GPS on mount
@@ -81,23 +92,27 @@ export const ReportHazardPage: React.FC = () => {
   const handleAcquireGps = () => {
     if ('geolocation' in navigator) {
       setGpsLoading(true);
+      setGpsError(null);
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
           setGpsAcquired(true);
           setGpsLoading(false);
-          setAddress(`Near current location (±${Math.round(pos.coords.accuracy)}m accuracy)`);
-          setLocality('Current Locality');
+          setAddress(`Near current position (±${Math.round(pos.coords.accuracy)}m accuracy)`);
+          setLocality('Current Bengaluru Location');
         },
-        () => {
+        (err) => {
           setGpsLoading(false);
-          // Fall back gracefully to seeded Bengaluru coordinates
+          setGpsAcquired(false);
+          setGpsError(`Browser location unavailable (${err.message}). Showing Bengaluru demo coordinates; you may customize below.`);
           setCoords({ lat: 13.0358, lng: 77.5970 });
           setAddress('Hebbal Flyover Descent, Outer Ring Road');
           setLocality('Hebbal');
         },
         { enableHighAccuracy: true, timeout: 8000 }
       );
+    } else {
+      setGpsError('Browser does not support Geolocation API.');
     }
   };
 
@@ -109,7 +124,6 @@ export const ReportHazardPage: React.FC = () => {
         const url = reader.result as string;
         setImageUrl(url);
         setImagePreview(url);
-        // Automatically trigger AI analysis on user uploaded photo
         runAiAnalysis(url);
       };
       reader.readAsDataURL(file);
@@ -134,19 +148,35 @@ export const ReportHazardPage: React.FC = () => {
     };
   };
 
+  const handleCategorySelect = (catId: HazardCategory, defaultSev: HazardSeverity) => {
+    setCategory(catId);
+    setSeverity(defaultSev);
+    if (catId === 'waterlogged_road' || catId === 'potentially_hidden_surface_hazard') {
+      setIsWaterlogHiddenHazard(true);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     setTimeout(() => {
+      const isWaterlog = category === 'waterlogged_road' || isWaterlogHiddenHazard;
+      const additionalLabel = isWaterlog ? 'POTENTIALLY_HIDDEN_SURFACE_HAZARD' : undefined;
+
       const { hazard, isDuplicateGrouped } = StorageService.createHazardReport({
         latitude: coords.lat,
         longitude: coords.lng,
         address,
         locality,
         category,
+        additionalLabel,
         severity,
-        description: description || `Reported ${category.replace('_', ' ')} on carriageway.`,
+        description:
+          description ||
+          (isWaterlog
+            ? 'Waterlogged road. Road surface depth and condition cannot be seen; proceed cautiously.'
+            : `Reported ${category.replace('_', ' ')} on carriageway.`),
         imageUrl: imageUrl,
         aiClassification: aiResult
           ? {
@@ -164,12 +194,18 @@ export const ReportHazardPage: React.FC = () => {
         sensorTriggered: false
       });
 
+      // Dispatch to n8n automated workflow pipeline
+      N8NService.dispatchReportEvent(hazard).catch((err) =>
+        console.warn('n8n dispatch completed in fallback mode', err)
+      );
+
       setIsSubmitting(false);
       setSubmittedResult({
         hazardId: hazard.id,
-        isDuplicate: isDuplicateGrouped
+        isDuplicate: isDuplicateGrouped,
+        title: hazard.title
       });
-    }, 400);
+    }, 450);
   };
 
   if (submittedResult) {
@@ -184,7 +220,7 @@ export const ReportHazardPage: React.FC = () => {
             <h2 className="text-2xl font-extrabold text-brand-navy tracking-tight">
               Report Submitted!
             </h2>
-            <p className="text-sm text-brand-slate mt-2 leading-relaxed">
+            <p className="text-xs sm:text-sm text-brand-slate mt-2 leading-relaxed">
               {submittedResult.isDuplicate
                 ? 'Your report was automatically grouped into an existing hazard nearby, strengthening its community verification score (+30 trust points)!'
                 : 'Your report is now live on the RoadSense hazard map for all fellow two-wheeler commuters (+30 trust points).'}
@@ -194,7 +230,7 @@ export const ReportHazardPage: React.FC = () => {
           <div className="bg-brand-warm-white p-4 rounded-2xl border border-brand-neutral-grey/80 text-xs text-brand-slate space-y-1.5 text-left">
             <div className="flex justify-between">
               <span className="font-semibold text-brand-navy">Incident ID:</span>
-              <span className="font-mono">{submittedResult.hazardId}</span>
+              <span className="font-mono text-brand-orange">{submittedResult.hazardId}</span>
             </div>
             <div className="flex justify-between">
               <span className="font-semibold text-brand-navy">Category:</span>
@@ -205,8 +241,8 @@ export const ReportHazardPage: React.FC = () => {
               <span className="truncate max-w-[180px]">{locality}</span>
             </div>
             <div className="flex justify-between">
-              <span className="font-semibold text-brand-navy">Status:</span>
-              <span className="text-purple-700 font-bold">Community Verification</span>
+              <span className="font-semibold text-brand-navy">Initial Trust State:</span>
+              <span className="text-purple-700 font-bold">NEWLY_REPORTED</span>
             </div>
           </div>
 
@@ -222,6 +258,7 @@ export const ReportHazardPage: React.FC = () => {
                 setSubmittedResult(null);
                 setDescription('');
                 setAiResult(null);
+                setIsWaterlogHiddenHazard(false);
               }}
               className="py-3 px-4 rounded-xl border border-brand-neutral-grey text-brand-navy hover:bg-brand-soft-blue font-semibold text-sm transition-all"
             >
@@ -235,9 +272,18 @@ export const ReportHazardPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-brand-warm-white py-8 px-4 sm:px-6 lg:px-8 font-sans">
-      <div className="max-w-3xl mx-auto">
-        {/* Header */}
-        <div className="mb-6">
+      <div className="max-w-3xl mx-auto space-y-6">
+        {/* Safety First Header */}
+        <div className="bg-amber-500/15 border border-amber-500/30 p-4 rounded-3xl flex items-center gap-3 text-xs text-amber-950 shadow-subtle">
+          <PhoneOff className="w-5 h-5 text-amber-700 flex-shrink-0" />
+          <div>
+            <strong className="block font-bold">STOP-FIRST RIDER SAFETY RULE:</strong>
+            Pull over to a safe curb before capturing photos or filing reports. Never operate a smartphone while riding.
+          </div>
+        </div>
+
+        {/* Page Title */}
+        <div>
           <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-brand-orange mb-1">
             <Clock className="w-3.5 h-3.5" />
             20-Second Fast Reporting Workflow
@@ -323,24 +369,51 @@ export const ReportHazardPage: React.FC = () => {
                   <button
                     key={cat.id}
                     type="button"
-                    onClick={() => {
-                      setCategory(cat.id);
-                      setSeverity(cat.defaultSeverity);
-                    }}
-                    className={`p-3 rounded-2xl text-left border transition-all flex flex-col justify-between h-20 ${
+                    onClick={() => handleCategorySelect(cat.id, cat.defaultSeverity)}
+                    className={`p-3 rounded-2xl text-left border transition-all flex flex-col justify-between h-24 ${
                       isSelected
                         ? 'border-brand-orange bg-brand-orange/10 ring-2 ring-brand-orange/30 shadow-sm'
                         : 'border-brand-neutral-grey hover:border-slate-300 bg-white'
                     }`}
                   >
                     <span className="text-xl">{cat.icon}</span>
-                    <span className={`text-xs font-bold leading-tight ${isSelected ? 'text-brand-orange' : 'text-brand-navy'}`}>
-                      {cat.label}
-                    </span>
+                    <div>
+                      <span className={`text-xs font-bold leading-tight block ${isSelected ? 'text-brand-orange' : 'text-brand-navy'}`}>
+                        {cat.label}
+                      </span>
+                      <span className="text-[10px] text-brand-slate-light line-clamp-1">
+                        {cat.description}
+                      </span>
+                    </div>
                   </button>
                 );
               })}
             </div>
+
+            {/* Special Waterlogged Road Callout & Additional Label */}
+            {(category === 'waterlogged_road' || category === 'potentially_hidden_surface_hazard') && (
+              <div className="bg-blue-50 border border-blue-200 p-4 rounded-2xl text-xs space-y-2.5 animate-fadeIn">
+                <div className="flex items-center gap-2 text-blue-900 font-bold">
+                  <Waves className="w-4 h-4 text-blue-600" />
+                  <span>Waterlogged Road Notice (Representing Uncertainty Honestly)</span>
+                </div>
+                <p className="text-blue-800 text-[11px] leading-relaxed">
+                  Water obscures the road surface. We will warn approaching riders:
+                  <span className="font-semibold block italic mt-1">
+                    &ldquo;Waterlogged road ahead. Road surface may be uneven. Proceed cautiously.&rdquo;
+                  </span>
+                </p>
+                <label className="flex items-center gap-2 pt-1 font-semibold text-blue-950 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={isWaterlogHiddenHazard}
+                    onChange={(e) => setIsWaterlogHiddenHazard(e.target.checked)}
+                    className="w-4 h-4 accent-blue-600 cursor-pointer"
+                  />
+                  <span>Tag as POTENTIALLY_HIDDEN_SURFACE_HAZARD</span>
+                </label>
+              </div>
+            )}
           </div>
 
           {/* 3. Severity & Location */}
@@ -393,6 +466,12 @@ export const ReportHazardPage: React.FC = () => {
                 </button>
               </div>
 
+              {gpsError && (
+                <div className="text-[11px] text-amber-800 bg-amber-50 p-2 rounded-lg border border-amber-200">
+                  {gpsError}
+                </div>
+              )}
+
               <div className="space-y-2">
                 <div>
                   <label className="text-[11px] font-semibold text-brand-slate">Road / Landmark</label>
@@ -416,11 +495,13 @@ export const ReportHazardPage: React.FC = () => {
                   />
                 </div>
 
-                <div className="text-[11px] text-brand-slate flex items-center gap-1.5 pt-1">
+                <div className="text-[11px] text-brand-slate flex items-center justify-between pt-1">
                   <span className="font-mono text-[10px] bg-slate-100 px-1.5 py-0.5 rounded">
                     {coords.lat.toFixed(5)}, {coords.lng.toFixed(5)}
                   </span>
-                  <span className="text-emerald-600 font-semibold">✓ GPS Tagged</span>
+                  <span className={`font-semibold text-xs ${gpsAcquired ? 'text-emerald-600' : 'text-slate-500'}`}>
+                    {gpsAcquired ? '✓ Live GPS Tagged' : 'Manual Coordinates'}
+                  </span>
                 </div>
               </div>
             </div>

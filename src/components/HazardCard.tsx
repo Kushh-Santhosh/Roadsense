@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Hazard } from '../types';
-import { SeverityBadge, StatusBadge, CategoryLabel } from './HazardBadge';
+import { SeverityBadge, StatusBadge, CategoryLabel, WaterlogHazardWarningPill } from './HazardBadge';
+import { HazardTrustTimeline } from './HazardTrustTimeline';
 import { StorageService } from '../services/storageService';
 import {
   MapPin,
@@ -13,7 +14,13 @@ import {
   Flag,
   Share2,
   ChevronRight,
-  Eye
+  ChevronDown,
+  ChevronUp,
+  Eye,
+  Camera,
+  Waves,
+  ShieldCheck,
+  AlertTriangle
 } from 'lucide-react';
 
 interface HazardCardProps {
@@ -30,42 +37,78 @@ export const HazardCard: React.FC<HazardCardProps> = ({
   compact = false
 }) => {
   const [hasVoted, setHasVoted] = useState<'still' | 'gone' | null>(null);
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [voteFeedback, setVoteFeedback] = useState<string | null>(null);
+  const [showTimeline, setShowTimeline] = useState(false);
 
   const timeAgo = (dateStr: string) => {
+    if (!dateStr) return 'Recently';
     const diffMs = Date.now() - new Date(dateStr).getTime();
     const mins = Math.floor(diffMs / 60000);
-    if (mins < 60) return `${mins}m ago`;
+    if (mins < 60) return `${Math.max(1, mins)}m ago`;
     const hours = Math.floor(mins / 60);
     if (hours < 24) return `${hours}h ago`;
     const days = Math.floor(hours / 24);
     return `${days}d ago`;
   };
 
+  const isWaterlog =
+    hazard.category === 'waterlogged_road' ||
+    hazard.category === 'waterlogging' ||
+    hazard.additionalLabel === 'POTENTIALLY_HIDDEN_SURFACE_HAZARD';
+
+  const evidence = hazard.evidence || {
+    independentRiderConfirmations: hazard.confirmationsCount || 0,
+    uniqueUserIdsConfirmed: [],
+    hasPhotoEvidence: !!hazard.primaryImageUrl,
+    lastConfirmedAt: hazard.lastUpdatedAt || hazard.firstReportedAt,
+    sensorCandidateCount: hazard.sensorDetected ? 1 : 0,
+    isDisputed: false
+  };
+
   const handleVote = (type: 'still_present' | 'no_longer_present') => {
     StorageService.confirmHazard(hazard.id, type);
     setHasVoted(type === 'still_present' ? 'still' : 'gone');
-    setVoteFeedback(type === 'still_present' ? 'Confirmed hazard is still present (+15 pts)' : 'Marked as no longer present');
+    setVoteFeedback(
+      type === 'still_present'
+        ? 'Confirmed hazard is still present (+15 pts)'
+        : 'Voted hazard is no longer present'
+    );
     setTimeout(() => setVoteFeedback(null), 3000);
     if (onVoteSuccess) onVoteSuccess();
   };
 
   return (
-    <div className={`bg-white rounded-2xl border border-brand-neutral-grey/80 shadow-subtle hover:shadow-card transition-all duration-200 overflow-hidden flex flex-col ${
-      compact ? 'p-3' : 'p-4 sm:p-5'
-    }`}>
+    <div
+      className={`bg-white rounded-2xl border transition-all duration-200 overflow-hidden flex flex-col ${
+        isWaterlog
+          ? 'border-blue-300 shadow-sm ring-1 ring-blue-100'
+          : 'border-brand-neutral-grey/80 shadow-subtle hover:shadow-card'
+      } ${compact ? 'p-3' : 'p-4 sm:p-5'}`}
+    >
       {/* Card Header: Badges & Time */}
       <div className="flex items-center justify-between gap-2 mb-2.5">
         <div className="flex items-center gap-1.5 flex-wrap">
           <SeverityBadge severity={hazard.severity} size="sm" />
-          <StatusBadge status={hazard.status} size="sm" />
+          <StatusBadge status={hazard.canonicalStatus || hazard.status} size="sm" />
+          {isWaterlog && (
+            <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-200">
+              <Waves className="w-3 h-3 text-blue-600" />
+              Surface Obscured
+            </span>
+          )}
         </div>
         <span className="text-[11px] font-medium text-brand-slate flex items-center gap-1 flex-shrink-0">
           <Clock className="w-3 h-3" />
-          {timeAgo(hazard.lastUpdatedAt)}
+          {timeAgo(evidence.lastConfirmedAt || hazard.lastUpdatedAt)}
         </span>
       </div>
+
+      {/* Waterlog specific advisory callout */}
+      {isWaterlog && !compact && (
+        <div className="mb-3">
+          <WaterlogHazardWarningPill />
+        </div>
+      )}
 
       {/* Main Image & Title */}
       <div className="flex gap-3.5 mb-3">
@@ -108,46 +151,62 @@ export const HazardCard: React.FC<HazardCardProps> = ({
         </div>
       </div>
 
-      {/* AI & Sensor Indicators + Confidence Score */}
-      <div className="bg-brand-warm-white rounded-xl p-2.5 mb-3 border border-brand-neutral-grey/60 flex items-center justify-between gap-3 text-xs">
-        <div className="flex items-center gap-2 flex-wrap">
-          {hazard.aiDetected && (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 border border-purple-200 font-semibold text-[11px]">
-              <Sparkles className="w-3 h-3 text-purple-600" />
-              AI Verified
+      {/* Evidence-Backed Fact Strip (Separates confirmed facts from suggestions) */}
+      <div className="bg-brand-warm-white rounded-xl p-2.5 mb-3 border border-brand-neutral-grey/60 text-xs space-y-2">
+        <div className="flex items-center justify-between flex-wrap gap-2 text-[11px]">
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* Independent Confirmations */}
+            <span className="inline-flex items-center gap-1 font-semibold text-brand-navy bg-white px-2 py-0.5 rounded border border-brand-neutral-grey/80">
+              <ShieldCheck className="w-3 h-3 text-emerald-600" />
+              {evidence.independentRiderConfirmations} {evidence.independentRiderConfirmations === 1 ? 'rider' : 'riders'} confirmed
             </span>
-          )}
-          {hazard.sensorDetected && (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 font-semibold text-[11px]">
-              <Activity className="w-3 h-3 text-emerald-600" />
-              Sensor Spike
-            </span>
-          )}
-          <span className="text-brand-slate text-[11px]">
-            {hazard.reportsCount} {hazard.reportsCount === 1 ? 'report' : 'reports'} • {hazard.confirmationsCount} confirmations
-          </span>
+
+            {/* Photo Evidence */}
+            {evidence.hasPhotoEvidence && (
+              <span className="inline-flex items-center gap-1 font-semibold text-brand-navy bg-white px-2 py-0.5 rounded border border-brand-neutral-grey/80">
+                <Camera className="w-3 h-3 text-brand-orange" />
+                Photo
+              </span>
+            )}
+
+            {/* Sensor Spike */}
+            {evidence.sensorCandidateCount > 0 && (
+              <span className="inline-flex items-center gap-1 font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                <Activity className="w-3 h-3 text-emerald-600" />
+                {evidence.sensorCandidateCount} sensor {evidence.sensorCandidateCount === 1 ? 'spike' : 'spikes'}
+              </span>
+            )}
+          </div>
+
+          {/* Trust Timeline Toggle Button */}
+          <button
+            onClick={() => setShowTimeline(!showTimeline)}
+            className="text-[11px] font-bold text-brand-orange hover:text-brand-orange-hover flex items-center gap-0.5"
+          >
+            <span>Trust Timeline</span>
+            {showTimeline ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+          </button>
         </div>
 
-        {/* Confidence Meter */}
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <div className="text-right">
-            <div className="font-bold text-xs text-brand-navy">{hazard.confidenceScore}%</div>
-            <div className="text-[10px] text-brand-slate-light">Confidence</div>
+        {/* AI Suggestion (if available) - Clearly labeled as model suggestion */}
+        {evidence.aiSuggestion && (
+          <div className="text-[10px] text-purple-800 bg-purple-50 px-2 py-1 rounded-md border border-purple-200 flex items-center justify-between">
+            <span>
+              <strong>AI Suggestion:</strong> {evidence.aiSuggestion.category} ({evidence.aiSuggestion.damageType})
+            </span>
+            <span className="font-mono font-bold text-purple-900">
+              {Math.round(evidence.aiSuggestion.confidence * 100)}% match
+            </span>
           </div>
-          <div className="w-12 h-2 bg-slate-200 rounded-full overflow-hidden">
-            <div
-              className={`h-full rounded-full transition-all duration-500 ${
-                hazard.confidenceScore >= 85
-                  ? 'bg-brand-green'
-                  : hazard.confidenceScore >= 65
-                  ? 'bg-brand-orange'
-                  : 'bg-amber-500'
-              }`}
-              style={{ width: `${hazard.confidenceScore}%` }}
-            />
-          </div>
-        </div>
+        )}
       </div>
+
+      {/* Expandable Trust Timeline */}
+      {showTimeline && (
+        <div className="mb-3 pt-2 border-t border-brand-neutral-grey/60 animate-fadeIn">
+          <HazardTrustTimeline hazard={hazard} />
+        </div>
+      )}
 
       {/* Feedback Toast */}
       {voteFeedback && (

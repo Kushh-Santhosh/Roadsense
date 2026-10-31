@@ -16,7 +16,8 @@ import {
   Bell,
   RefreshCw,
   Building2,
-  Bike
+  Bike,
+  Cpu
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -197,6 +198,15 @@ export const Navbar: React.FC<NavbarProps> = ({ currentRole = 'rider', onRoleCha
                 >
                   Analytics & CSV
                 </Link>
+                <Link
+                  to="/admin/automation"
+                  className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-1.5 ${
+                    location.pathname === '/admin/automation' ? 'bg-brand-soft-blue text-brand-navy font-semibold' : 'text-brand-slate hover:text-brand-navy'
+                  }`}
+                >
+                  <Cpu className="w-4 h-4 text-brand-orange" />
+                  Automation (n8n)
+                </Link>
               </>
             )}
           </nav>
@@ -345,6 +355,14 @@ export const Navbar: React.FC<NavbarProps> = ({ currentRole = 'rider', onRoleCha
             Authority & Fleet Portal
           </Link>
           <Link
+            to="/admin/automation"
+            onClick={() => setMobileMenuOpen(false)}
+            className="flex items-center gap-2.5 px-3 py-2 text-sm font-medium rounded-lg text-brand-navy hover:bg-brand-soft-blue"
+          >
+            <Cpu className="w-4 h-4 text-brand-orange" />
+            n8n Automation Console
+          </Link>
+          <Link
             to="/safety"
             onClick={() => setMobileMenuOpen(false)}
             className="flex items-center gap-2.5 px-3 py-2 text-sm font-medium rounded-lg text-brand-navy hover:bg-brand-soft-blue"
@@ -357,3 +375,4 @@ export const Navbar: React.FC<NavbarProps> = ({ currentRole = 'rider', onRoleCha
     </header>
   );
 };
+

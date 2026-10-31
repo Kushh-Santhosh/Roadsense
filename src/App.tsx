@@ -30,6 +30,7 @@ import { AdminMapPage } from './pages/admin/AdminMapPage';
 import { AdminReportsPage } from './pages/admin/AdminReportsPage';
 import { AdminHazardDetailPage } from './pages/admin/AdminHazardDetailPage';
 import { AdminAnalyticsPage } from './pages/admin/AdminAnalyticsPage';
+import { AdminAutomationPage } from './pages/admin/AdminAutomationPage';
 import { AdminUsersPage } from './pages/admin/AdminUsersPage';
 import { AdminSettingsPage } from './pages/admin/AdminSettingsPage';
 
@@ -87,6 +88,7 @@ export function App() {
             <Route path="/admin/reports" element={<AdminReportsPage />} />
             <Route path="/admin/hazards/:id" element={<AdminHazardDetailPage />} />
             <Route path="/admin/analytics" element={<AdminAnalyticsPage />} />
+            <Route path="/admin/automation" element={<AdminAutomationPage />} />
             <Route path="/admin/users" element={<AdminUsersPage />} />
             <Route path="/admin/settings" element={<AdminSettingsPage />} />
 
@@ -102,3 +104,4 @@ export function App() {
 }
 
 export default App;
+

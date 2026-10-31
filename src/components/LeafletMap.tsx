@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap, Circle, Polyline } from 'react-leaflet';
 import L from 'leaflet';
 import { Hazard, HazardSeverity, HazardCategory } from '../types';
-import { SeverityBadge, StatusBadge, CategoryLabel } from './HazardBadge';
+import { SeverityBadge, StatusBadge, CanonicalStatusBadge, CategoryLabel, WaterlogHazardWarningPill } from './HazardBadge';
 import {
   Navigation,
   Crosshair,
@@ -13,7 +13,10 @@ import {
   ExternalLink,
   ShieldAlert,
   Search,
-  Filter
+  Filter,
+  Users,
+  Camera,
+  Activity
 } from 'lucide-react';
 
 interface LeafletMapProps {
@@ -217,13 +220,17 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
               className="py-1.5 px-2.5 rounded-lg border border-brand-neutral-grey bg-white text-brand-navy font-medium focus:outline-none focus:ring-2 focus:ring-brand-orange/40"
             >
               <option value="all">All Categories</option>
-              <option value="pothole">Potholes</option>
+              <option value="waterlogged_road">🌊 Waterlogged Road</option>
+              <option value="potentially_hidden_surface_hazard">⚠️ Hidden Surface Risk</option>
+              <option value="pothole">🕳️ Potholes</option>
               <option value="road_cracks">Road Cracks</option>
               <option value="uneven_surface">Uneven Surface</option>
               <option value="damaged_manhole">Damaged Manhole</option>
-              <option value="waterlogging">Waterlogging</option>
-              <option value="road_construction">Construction</option>
-              <option value="damaged_edge">Damaged Edge</option>
+              <option value="open_drain">Open Drain / Culvert</option>
+              <option value="debris">Loose Gravel / Debris</option>
+              <option value="road_construction">Construction Zone</option>
+              <option value="damaged_edge">Damaged Shoulder / Edge</option>
+              <option value="other_hazard">Other Hazard</option>
             </select>
 
             {/* Locate Me Button */}
@@ -313,16 +320,27 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
                   }
                 }}
               >
-                <Popup className="roadsense-popup" maxWidth={300}>
-                  <div className="p-2 space-y-2 font-sans text-brand-navy">
-                    <div className="flex items-center justify-between gap-1">
-                      <SeverityBadge severity={hazard.severity} size="sm" />
+                <Popup className="roadsense-popup" maxWidth={320}>
+                  <div className="p-2.5 space-y-2 font-sans text-brand-navy">
+                    <div className="flex items-center justify-between gap-1 flex-wrap">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <SeverityBadge severity={hazard.severity} size="sm" />
+                        {hazard.canonicalStatus ? (
+                          <CanonicalStatusBadge status={hazard.canonicalStatus} size="sm" />
+                        ) : (
+                          <StatusBadge status={hazard.status} size="sm" />
+                        )}
+                      </div>
                       <span className="text-[10px] font-bold text-brand-slate uppercase tracking-wider">{hazard.locality}</span>
                     </div>
 
                     <h4 className="font-bold text-xs text-brand-navy leading-snug">
                       {hazard.title}
                     </h4>
+
+                    {(hazard.category === 'waterlogged_road' || hazard.category === 'potentially_hidden_surface_hazard' || hazard.additionalLabel) && (
+                      <WaterlogHazardWarningPill />
+                    )}
 
                     {hazard.primaryImageUrl && (
                       <div className="rounded-lg overflow-hidden h-24 w-full bg-slate-200">
@@ -338,11 +356,39 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
                       {hazard.description}
                     </p>
 
+                    {/* Evidence summary pill */}
+                    <div className="bg-slate-50 p-2 rounded-lg border border-slate-200/80 text-[10px] space-y-1">
+                      <div className="flex items-center justify-between text-brand-navy font-semibold">
+                        <span className="flex items-center gap-1">
+                          <Users className="w-3 h-3 text-purple-600" />
+                          <span>{hazard.evidence?.independentRiderConfirmations ?? hazard.confirmationsCount} Rider Corroborations</span>
+                        </span>
+                        {hazard.evidence?.hasPhotoEvidence ? (
+                          <span className="flex items-center gap-1 text-blue-700">
+                            <Camera className="w-3 h-3" />
+                            <span>Photo Verified</span>
+                          </span>
+                        ) : null}
+                      </div>
+
+                      {hazard.evidence?.sensorCandidateCount && hazard.evidence.sensorCandidateCount > 0 ? (
+                        <div className="flex items-center gap-1 text-emerald-700 font-medium">
+                          <Activity className="w-3 h-3" />
+                          <span>{hazard.evidence.sensorCandidateCount} sensor acceleration telemetry peaks</span>
+                        </div>
+                      ) : null}
+                    </div>
+
                     <div className="flex items-center justify-between pt-1 border-t border-slate-100 text-[10px]">
-                      <span className="font-bold text-brand-navy">Confidence: {hazard.confidenceScore}%</span>
-                      <span className="text-brand-orange font-semibold">
-                        {hazard.confirmationsCount} confirmations
-                      </span>
+                      <span className="font-bold text-brand-navy">Trust Score: {hazard.confidenceScore}%</span>
+                      <button
+                        onClick={() => {
+                          if (onSelectHazard) onSelectHazard(hazard);
+                        }}
+                        className="text-brand-orange font-bold hover:underline cursor-pointer"
+                      >
+                        Inspect Details →
+                      </button>
                     </div>
                   </div>
                 </Popup>
@@ -383,3 +429,4 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
     </div>
   );
 };
+

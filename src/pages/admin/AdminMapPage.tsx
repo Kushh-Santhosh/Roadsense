@@ -22,6 +22,7 @@ export const AdminMapPage: React.FC = () => {
   const [localityFilter, setLocalityFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [severityFilter, setSeverityFilter] = useState('all');
+  const [categoryFilter, setCategoryFilter] = useState('all');
 
   useEffect(() => {
     setHazards(StorageService.getHazards());
@@ -31,8 +32,21 @@ export const AdminMapPage: React.FC = () => {
 
   const filteredHazards = hazards.filter((h) => {
     if (localityFilter !== 'all' && h.locality !== localityFilter) return false;
-    if (statusFilter !== 'all' && h.status !== statusFilter) return false;
+    if (statusFilter !== 'all') {
+      const matchLegacy = h.status === statusFilter;
+      const matchCanonical = h.canonicalStatus === statusFilter;
+      if (!matchLegacy && !matchCanonical) return false;
+    }
     if (severityFilter !== 'all' && h.severity !== severityFilter) return false;
+    if (categoryFilter !== 'all') {
+      if (categoryFilter === 'waterlogged_road') {
+        if (h.category !== 'waterlogged_road' && h.additionalLabel !== 'POTENTIALLY_HIDDEN_SURFACE_HAZARD') {
+          return false;
+        }
+      } else if (h.category !== categoryFilter) {
+        return false;
+      }
+    }
     return true;
   });
 
@@ -64,6 +78,21 @@ export const AdminMapPage: React.FC = () => {
             ))}
           </select>
 
+          {/* Category Filter */}
+          <select
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+            className="bg-brand-navy-light text-white border border-white/20 rounded-lg px-2.5 py-1.5 focus:outline-none"
+          >
+            <option value="all">All Hazard Types</option>
+            <option value="waterlogged_road">🌊 Waterlogged Road</option>
+            <option value="pothole">🕳️ Potholes</option>
+            <option value="road_cracks">Road Cracks</option>
+            <option value="damaged_manhole">Damaged Manhole</option>
+            <option value="open_drain">Open Drain</option>
+            <option value="road_construction">Construction</option>
+          </select>
+
           {/* Status Filter */}
           <select
             value={statusFilter}
@@ -71,10 +100,16 @@ export const AdminMapPage: React.FC = () => {
             className="bg-brand-navy-light text-white border border-white/20 rounded-lg px-2.5 py-1.5 focus:outline-none"
           >
             <option value="all">All Verification Stages</option>
-            <option value="submitted">Submitted</option>
-            <option value="community_confirmed">Community Confirmed</option>
-            <option value="forwarded_review">Forwarded for Review</option>
-            <option value="resolved">Resolved</option>
+            <option value="NEWLY_REPORTED">NEWLY_REPORTED</option>
+            <option value="UNDER_REVIEW">UNDER_REVIEW</option>
+            <option value="COMMUNITY_CORROBORATED">COMMUNITY_CORROBORATED</option>
+            <option value="RECENTLY_CONFIRMED">RECENTLY_CONFIRMED</option>
+            <option value="STALE_NEEDS_RECONFIRMATION">STALE_NEEDS_RECONFIRMATION</option>
+            <option value="CONFIRMED_RESOLVED">CONFIRMED_RESOLVED</option>
+            <option value="DISPUTED">DISPUTED</option>
+            <option value="submitted">Legacy: Submitted</option>
+            <option value="community_confirmed">Legacy: Confirmed</option>
+            <option value="resolved">Legacy: Resolved</option>
           </select>
 
           {/* Severity Filter */}
@@ -141,3 +176,4 @@ export const AdminMapPage: React.FC = () => {
     </div>
   );
 };
+

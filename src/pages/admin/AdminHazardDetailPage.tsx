@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { StorageService } from '../../services/storageService';
-import { Hazard, VerificationStatus } from '../../types';
-import { StatusBadge, SeverityBadge, CategoryLabel } from '../../components/HazardBadge';
+import { Hazard, VerificationStatus, CanonicalVerificationStatus } from '../../types';
+import { StatusBadge, CanonicalStatusBadge, SeverityBadge, CategoryLabel, WaterlogHazardWarningPill } from '../../components/HazardBadge';
+import { HazardTrustTimeline } from '../../components/HazardTrustTimeline';
 import { LeafletMap } from '../../components/LeafletMap';
 import {
   ArrowLeft,
@@ -26,6 +27,7 @@ export const AdminHazardDetailPage: React.FC = () => {
 
   // Form State
   const [status, setStatus] = useState<VerificationStatus>('submitted');
+  const [canonicalStatus, setCanonicalStatus] = useState<CanonicalVerificationStatus>('NEWLY_REPORTED');
   const [assignedTeam, setAssignedTeam] = useState('');
   const [internalNotes, setInternalNotes] = useState('');
   const [resolutionRemarks, setResolutionRemarks] = useState('');
@@ -38,6 +40,7 @@ export const AdminHazardDetailPage: React.FC = () => {
       if (found) {
         setHazard(found);
         setStatus(found.status);
+        setCanonicalStatus(found.canonicalStatus || 'NEWLY_REPORTED');
         setAssignedTeam(found.assignedTeam || '');
         setInternalNotes(found.internalNotes || '');
         setResolutionRemarks(found.resolutionRemarks || '');
@@ -57,6 +60,32 @@ export const AdminHazardDetailPage: React.FC = () => {
     );
   }
 
+  const handleCanonicalChange = (newCanonical: CanonicalVerificationStatus) => {
+    setCanonicalStatus(newCanonical);
+    // Sync legacy status
+    switch (newCanonical) {
+      case 'NEWLY_REPORTED':
+        setStatus('submitted');
+        break;
+      case 'UNDER_REVIEW':
+        setStatus('under_verification');
+        break;
+      case 'COMMUNITY_CORROBORATED':
+      case 'RECENTLY_CONFIRMED':
+        setStatus('community_confirmed');
+        break;
+      case 'RESOLUTION_SUBMITTED':
+      case 'CONFIRMED_RESOLVED':
+        setStatus('resolved');
+        break;
+      case 'DISPUTED':
+        setStatus('rejected');
+        break;
+      default:
+        setStatus('forwarded_review');
+    }
+  };
+
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
     if (!id) return;
@@ -67,6 +96,24 @@ export const AdminHazardDetailPage: React.FC = () => {
       resolutionRemarks,
       resolutionEvidenceUrl: resolutionEvidenceUrl || undefined
     });
+
+    // Also update canonical status and trust timeline event in storage
+    const allHazards = StorageService.getHazards();
+    const target = allHazards.find((h) => h.id === id);
+    if (target) {
+      target.canonicalStatus = canonicalStatus;
+      target.trustTimeline = target.trustTimeline || [];
+      target.trustTimeline.push({
+        id: 'aud-' + Date.now(),
+        timestamp: new Date().toISOString(),
+        stage: canonicalStatus,
+        title: `Status set to ${canonicalStatus}`,
+        actor: 'Municipal Engineer Sign-off',
+        details: `Worksheet sign-off updated status to ${canonicalStatus}`,
+        evidenceType: 'authority_action'
+      });
+      StorageService.saveHazards(allHazards);
+    }
 
     setSavedNotice(true);
     setTimeout(() => setSavedNotice(false), 3000);
@@ -102,9 +149,13 @@ export const AdminHazardDetailPage: React.FC = () => {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center gap-2 flex-wrap">
               <SeverityBadge severity={hazard.severity} />
-              <StatusBadge status={hazard.status} />
+              {hazard.canonicalStatus ? (
+                <CanonicalStatusBadge status={hazard.canonicalStatus} />
+              ) : (
+                <StatusBadge status={hazard.status} />
+              )}
               {hazard.aiDetected && (
-                <span className="px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 text-xs font-bold border border-purple-200 flex items-center gap-1">
+                <span className="px-2.5 py-1 rounded-full bg-purple-50 text-purple-700 text-xs font-bold border border-purple-200 flex items-center gap-1">
                   <Sparkles className="w-3 h-3 text-purple-600" />
                   AI RDD2022 Classified
                 </span>
@@ -119,6 +170,10 @@ export const AdminHazardDetailPage: React.FC = () => {
           <h1 className="text-2xl sm:text-3xl font-extrabold text-brand-navy tracking-tight">
             {hazard.title}
           </h1>
+
+          {(hazard.category === 'waterlogged_road' || hazard.category === 'potentially_hidden_surface_hazard' || hazard.additionalLabel) && (
+            <WaterlogHazardWarningPill />
+          )}
 
           <div className="flex items-center gap-2 text-xs text-brand-slate font-medium">
             <MapPin className="w-4 h-4 text-brand-orange" />
@@ -170,6 +225,9 @@ export const AdminHazardDetailPage: React.FC = () => {
           </div>
         </div>
 
+        {/* Evidence Breakdown & Immutable Trust Timeline */}
+        <HazardTrustTimeline hazard={hazard} />
+
         {/* Authority Dispatch & Resolution Worksheet Form */}
         <form onSubmit={handleSave} className="bg-white rounded-3xl p-6 sm:p-8 border border-brand-neutral-grey shadow-subtle space-y-6">
           <div className="border-b border-brand-neutral-grey pb-3">
@@ -178,26 +236,28 @@ export const AdminHazardDetailPage: React.FC = () => {
               Remediation Action & Municipal Dispatch Sign-off
             </h3>
             <p className="text-xs text-brand-slate mt-0.5">
-              Updates will automatically sync to citizen rider map and audit trail.
+              Updates will automatically sync to citizen rider map, recalculate trust scores, and append an entry to the immutable audit timeline.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <label className="text-xs font-bold text-brand-navy block">
-                Verification & Repair Status
+                Canonical Trust Stage
               </label>
               <select
-                value={status}
-                onChange={(e) => setStatus(e.target.value as VerificationStatus)}
+                value={canonicalStatus}
+                onChange={(e) => handleCanonicalChange(e.target.value as CanonicalVerificationStatus)}
                 className="w-full p-2.5 rounded-xl border border-brand-neutral-grey bg-white text-xs font-semibold text-brand-navy focus:ring-2 focus:ring-brand-orange/40"
               >
-                <option value="submitted">Submitted (Awaiting Triage)</option>
-                <option value="under_verification">Under Verification (Site Inspection Required)</option>
-                <option value="community_confirmed">Community Confirmed</option>
-                <option value="forwarded_review">Forwarded for Engineering Review</option>
-                <option value="resolved">Resolved (Repaired & Patched)</option>
-                <option value="rejected">Rejected (Not a Hazard / False Alarm)</option>
+                <option value="NEWLY_REPORTED">NEWLY_REPORTED (Freshly filed by citizen)</option>
+                <option value="UNDER_REVIEW">UNDER_REVIEW (Triage in progress)</option>
+                <option value="COMMUNITY_CORROBORATED">COMMUNITY_CORROBORATED (Consensus reached)</option>
+                <option value="RECENTLY_CONFIRMED">RECENTLY_CONFIRMED (Re-confirmed active within window)</option>
+                <option value="STALE_NEEDS_RECONFIRMATION">STALE_NEEDS_RECONFIRMATION (Awaiting fresher rider signal)</option>
+                <option value="RESOLUTION_SUBMITTED">RESOLUTION_SUBMITTED (Contractor marked fixed, awaiting audit)</option>
+                <option value="CONFIRMED_RESOLVED">CONFIRMED_RESOLVED (Engineering sign-off complete)</option>
+                <option value="DISPUTED">DISPUTED (False alarm / citizen dispute)</option>
               </select>
             </div>
 
@@ -276,3 +336,4 @@ export const AdminHazardDetailPage: React.FC = () => {
     </div>
   );
 };
+

@@ -236,3 +236,4 @@ CREATE POLICY "Authority update hazard" ON public.hazards
   FOR UPDATE USING (
     EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role IN ('authority', 'admin'))
   );
+

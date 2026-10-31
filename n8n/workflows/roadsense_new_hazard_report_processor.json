@@ -1,0 +1,152 @@
+{
+  "name": "RoadSense — New Hazard Report Processor",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "roadsense-hazard-report",
+        "options": {
+          "responseCode": 200,
+          "responseData": "allEntries"
+        }
+      },
+      "id": "node-webhook-trigger",
+      "name": "Webhook — New Hazard Report",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [180, 300],
+      "webhookId": "roadsense-hazard-report-webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Validate incoming RoadSense report payload structure\nconst body = $input.first().json.body || $input.first().json;\n\nif (!body.reportId || !body.latitude || !body.longitude || !body.category) {\n  throw new NodeOperationError(this, 'Invalid payload: reportId, latitude, longitude, and category are required.');\n}\n\n// Idempotency key tracking\nconst eventId = body.eventId || `evt_${body.reportId}`;\n\nreturn {\n  json: {\n    eventId,\n    reportId: body.reportId,\n    hazardId: body.hazardId || null,\n    userId: body.userId || 'anonymous',\n    category: body.category,\n    additionalLabel: body.additionalLabel || null,\n    severity: body.severity || 'high',\n    latitude: Number(body.latitude),\n    longitude: Number(body.longitude),\n    address: body.address || 'Unknown',\n    locality: body.locality || 'Bengaluru',\n    imageUrl: body.imageUrl || '',\n    aiClassification: body.aiClassification || null,\n    sensorTriggered: Boolean(body.sensorTriggered),\n    timestamp: body.timestamp || new Date().toISOString(),\n    processedAt: new Date().toISOString()\n  }\n};"
+      },
+      "id": "node-validate-payload",
+      "name": "Validate & Normalize Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [400, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.category }}",
+              "operation": "equals",
+              "value2": "waterlogged_road"
+            }
+          ]
+        }
+      },
+      "id": "node-check-waterlog",
+      "name": "Is Waterlogged Road?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [620, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Special tagging for waterlogged roads: represent uncertainty honestly\nconst item = $input.first().json;\nitem.additionalLabel = 'POTENTIALLY_HIDDEN_SURFACE_HAZARD';\nitem.advisoryMessage = 'Waterlogged road ahead. Road surface may be uneven. Proceed cautiously.';\nitem.triagePriority = 'CRITICAL_UNSEEN_DEPTH';\nitem.processingStatus = 'PROCESSED_WATERLOG_FLAGGED';\nreturn { json: item };"
+      },
+      "id": "node-tag-waterlog",
+      "name": "Tag Potentially Hidden Surface Hazard",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [840, 200]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Standard hazard processing logic\nconst item = $input.first().json;\nitem.advisoryMessage = `${item.category.replace('_', ' ')} reported ahead near ${item.locality}.`;\nitem.triagePriority = item.severity === 'critical' ? 'HIGH' : 'NORMAL';\nitem.processingStatus = 'PROCESSED_ACTIVE';\nreturn { json: item };"
+      },
+      "id": "node-tag-standard",
+      "name": "Tag Standard Hazard",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [840, 400]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare final audit and database update response\nconst input = $input.first().json;\n\nreturn {\n  json: {\n    status: 'success',\n    workflowName: 'RoadSense — New Hazard Report Processor',\n    eventId: input.eventId,\n    reportId: input.reportId,\n    hazardId: input.hazardId,\n    category: input.category,\n    additionalLabel: input.additionalLabel,\n    locality: input.locality,\n    advisoryMessage: input.advisoryMessage,\n    triagePriority: input.triagePriority,\n    processingStatus: input.processingStatus,\n    executionTimestamp: new Date().toISOString()\n  }\n};"
+      },
+      "id": "node-build-response",
+      "name": "Format Processing Result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1060, 300]
+    }
+  ],
+  "connections": {
+    "Webhook — New Hazard Report": {
+      "main": [
+        [
+          {
+            "node": "Validate & Normalize Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate & Normalize Payload": {
+      "main": [
+        [
+          {
+            "node": "Is Waterlogged Road?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Waterlogged Road?": {
+      "main": [
+        [
+          {
+            "node": "Tag Potentially Hidden Surface Hazard",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Tag Standard Hazard",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tag Potentially Hidden Surface Hazard": {
+      "main": [
+        [
+          {
+            "node": "Format Processing Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tag Standard Hazard": {
+      "main": [
+        [
+          {
+            "node": "Format Processing Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    "RoadSense",
+    "MobilitySafety",
+    "THub-MBRDI"
+  ]
+}

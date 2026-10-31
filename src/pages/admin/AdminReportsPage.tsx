@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { StorageService } from '../../services/storageService';
-import { Hazard, VerificationStatus } from '../../types';
-import { StatusBadge, SeverityBadge, CategoryLabel } from '../../components/HazardBadge';
+import { Hazard, VerificationStatus, CanonicalVerificationStatus } from '../../types';
+import { StatusBadge, CanonicalStatusBadge, SeverityBadge, CategoryLabel, WaterlogHazardWarningPill } from '../../components/HazardBadge';
 import { Link } from 'react-router-dom';
 import {
   Layers,
@@ -14,13 +14,15 @@ import {
   Eye,
   Trash2,
   RefreshCw,
-  Clock
+  Clock,
+  Droplet
 } from 'lucide-react';
 
 export const AdminReportsPage: React.FC = () => {
   const [hazards, setHazards] = useState<Hazard[]>([]);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [categoryFilter, setCategoryFilter] = useState('all');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [actionNotice, setActionNotice] = useState<string | null>(null);
 
@@ -33,7 +35,16 @@ export const AdminReportsPage: React.FC = () => {
   }, []);
 
   const filteredHazards = hazards.filter((h) => {
-    if (statusFilter !== 'all' && h.status !== statusFilter) return false;
+    if (statusFilter !== 'all') {
+      const matchLegacy = h.status === statusFilter;
+      const matchCanonical = h.canonicalStatus === statusFilter;
+      if (!matchLegacy && !matchCanonical) return false;
+    }
+    if (categoryFilter !== 'all' && h.category !== categoryFilter) {
+      if (categoryFilter === 'waterlogged_road' && h.additionalLabel !== 'POTENTIALLY_HIDDEN_SURFACE_HAZARD') {
+        return false;
+      }
+    }
     if (search.trim()) {
       const q = search.toLowerCase();
       return (
@@ -135,18 +146,41 @@ export const AdminReportsPage: React.FC = () => {
             />
           </div>
 
-          <div className="flex items-center gap-3 w-full sm:w-auto">
+          <div className="flex items-center gap-3 w-full sm:w-auto flex-wrap">
+            {/* Status Filter */}
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
               className="p-2 rounded-xl border border-brand-neutral-grey text-xs font-semibold text-brand-navy bg-white focus:outline-none"
             >
-              <option value="all">All Verification Statuses</option>
-              <option value="submitted">Submitted (Pending Review)</option>
-              <option value="under_verification">Under Verification</option>
-              <option value="community_confirmed">Community Confirmed</option>
-              <option value="forwarded_review">Forwarded for Review</option>
-              <option value="resolved">Resolved (Repaired)</option>
+              <option value="all">All Statuses (8 Stages)</option>
+              <option value="NEWLY_REPORTED">NEWLY_REPORTED</option>
+              <option value="UNDER_REVIEW">UNDER_REVIEW</option>
+              <option value="COMMUNITY_CORROBORATED">COMMUNITY_CORROBORATED</option>
+              <option value="RECENTLY_CONFIRMED">RECENTLY_CONFIRMED</option>
+              <option value="STALE_NEEDS_RECONFIRMATION">STALE_NEEDS_RECONFIRMATION</option>
+              <option value="RESOLUTION_SUBMITTED">RESOLUTION_SUBMITTED</option>
+              <option value="CONFIRMED_RESOLVED">CONFIRMED_RESOLVED</option>
+              <option value="DISPUTED">DISPUTED</option>
+              <option value="submitted">Legacy: Submitted</option>
+              <option value="community_confirmed">Legacy: Confirmed</option>
+              <option value="resolved">Legacy: Resolved</option>
+            </select>
+
+            {/* Category Filter */}
+            <select
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              className="p-2 rounded-xl border border-brand-neutral-grey text-xs font-semibold text-brand-navy bg-white focus:outline-none"
+            >
+              <option value="all">All Categories</option>
+              <option value="waterlogged_road">🌊 Waterlogged Road</option>
+              <option value="potentially_hidden_surface_hazard">⚠️ Hidden Surface Risk</option>
+              <option value="pothole">🕳️ Potholes</option>
+              <option value="road_cracks">Road Cracks</option>
+              <option value="damaged_manhole">Damaged Manhole</option>
+              <option value="open_drain">Open Drain</option>
+              <option value="road_construction">Construction</option>
             </select>
           </div>
         </div>
@@ -201,14 +235,20 @@ export const AdminReportsPage: React.FC = () => {
                               className="w-12 h-12 rounded-xl object-cover bg-slate-100 flex-shrink-0 border border-brand-neutral-grey"
                             />
                           )}
-                          <div>
-                            <div className="font-bold text-sm text-brand-navy leading-snug">
-                              {hazard.title}
+                          <div className="space-y-0.5">
+                            <div className="font-bold text-sm text-brand-navy leading-snug flex items-center gap-1.5 flex-wrap">
+                              <span>{hazard.title}</span>
+                              {(hazard.category === 'waterlogged_road' || hazard.additionalLabel) && (
+                                <span className="inline-flex items-center gap-0.5 text-[9px] px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-800 font-bold">
+                                  <Droplet className="w-2.5 h-2.5 fill-blue-600" />
+                                  Waterlogged
+                                </span>
+                              )}
                             </div>
-                            <div className="text-[11px] text-brand-slate line-clamp-1 mt-0.5">
+                            <div className="text-[11px] text-brand-slate line-clamp-1">
                               {hazard.address}
                             </div>
-                            <div className="text-[10px] text-brand-slate-light font-mono mt-0.5">
+                            <div className="text-[10px] text-brand-slate-light font-mono">
                               ID: {hazard.id} • {hazard.confirmationsCount} confirmations
                             </div>
                           </div>
@@ -242,19 +282,11 @@ export const AdminReportsPage: React.FC = () => {
                       </td>
 
                       <td className="p-4">
-                        <select
-                          value={hazard.status}
-                          onChange={(e) =>
-                            handleQuickStatusChange(hazard.id, e.target.value as VerificationStatus)
-                          }
-                          className="text-xs font-semibold py-1 px-2 rounded-lg border border-brand-neutral-grey bg-white text-brand-navy focus:outline-none"
-                        >
-                          <option value="submitted">Submitted</option>
-                          <option value="under_verification">Under Verification</option>
-                          <option value="community_confirmed">Community Confirmed</option>
-                          <option value="forwarded_review">Forwarded for Review</option>
-                          <option value="resolved">Resolved</option>
-                        </select>
+                        {hazard.canonicalStatus ? (
+                          <CanonicalStatusBadge status={hazard.canonicalStatus} size="sm" />
+                        ) : (
+                          <StatusBadge status={hazard.status} size="sm" />
+                        )}
                       </td>
 
                       <td className="p-4 text-right">
@@ -277,3 +309,4 @@ export const AdminReportsPage: React.FC = () => {
     </div>
   );
 };
+

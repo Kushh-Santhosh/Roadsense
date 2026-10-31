@@ -14,7 +14,8 @@ import {
   MapPin,
   ShieldAlert,
   FileSpreadsheet,
-  Users
+  Users,
+  Cpu
 } from 'lucide-react';
 
 export const AdminDashboard: React.FC = () => {
@@ -59,6 +60,13 @@ export const AdminDashboard: React.FC = () => {
             >
               <Layers className="w-4 h-4" />
               Review Queue ({pendingDispatch})
+            </Link>
+            <Link
+              to="/admin/automation"
+              className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-all border border-white/20 flex items-center gap-1.5"
+            >
+              <Cpu className="w-4 h-4 text-brand-orange" />
+              n8n Automation
             </Link>
             <Link
               to="/admin/analytics"
@@ -192,3 +200,4 @@ export const AdminDashboard: React.FC = () => {
     </div>
   );
 };
+

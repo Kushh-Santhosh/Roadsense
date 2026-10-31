@@ -6,6 +6,7 @@ export interface RouteCorridorHazard {
   distanceAlongRouteMeters: number;
   lateralDistanceMeters: number;
   warningMessage: string;
+  isWaterloggedWarning: boolean;
 }
 
 // Distance from point P to line segment AB in meters
@@ -92,18 +93,16 @@ export const RoutingService = {
         const data = await res.json();
         if (data.routes && data.routes.length > 0) {
           const route = data.routes[0];
-          // OSRM returns [lng, lat], convert to [lat, lng]
           coordinates = route.geometry.coordinates.map((coord: [number, number]) => [coord[1], coord[0]]);
           distanceKm = Number((route.distance / 1000).toFixed(1));
           durationMinutes = Math.round(route.duration / 60);
         }
       }
     } catch {
-      // Fallback interpolation if OSRM is unreachable
+      // Graceful fallback
     }
 
     if (coordinates.length === 0) {
-      // Generate realistic polyline with 10 waypoints between start and destination
       coordinates = this.generateFallbackPolyline(start, destination);
       const directDistM = calculateDistanceMeters(start[0], start[1], destination[0], destination[1]);
       distanceKm = Number(((directDistM * 1.3) / 1000).toFixed(1));
@@ -112,7 +111,7 @@ export const RoutingService = {
 
     // Corridor Hazard Analysis
     const allHazards = StorageService.getHazards().filter(
-      (h) => h.status !== 'resolved' && h.status !== 'rejected'
+      (h) => h.canonicalStatus !== 'CONFIRMED_RESOLVED' && h.status !== 'resolved' && h.status !== 'rejected'
     );
 
     const hazardsOnRoute: RouteCorridorHazard[] = [];
@@ -139,9 +138,8 @@ export const RoutingService = {
         }
       }
 
-      // Check if hazard falls within corridor buffer (e.g. 80 meters)
+      // Check if hazard falls within corridor buffer
       if (minDistanceMeters <= corridorBufferMeters) {
-        // Approximate distance along route from start
         let distAlongRoute = 0;
         for (let j = 0; j < closestSegmentIndex; j++) {
           distAlongRoute += calculateDistanceMeters(
@@ -153,16 +151,26 @@ export const RoutingService = {
         }
 
         const distanceMetersRounded = Math.round(minDistanceMeters);
-        const warning =
-          hazard.severity === 'critical'
-            ? `Critical ${hazard.category.replace('_', ' ')} detected ~${distanceMetersRounded}m from route near ${hazard.locality}`
-            : `${hazard.category.replace('_', ' ')} reported near route corridor (${hazard.locality})`;
+        const isWaterlog =
+          hazard.category === 'waterlogged_road' ||
+          hazard.category === 'waterlogging' ||
+          hazard.additionalLabel === 'POTENTIALLY_HIDDEN_SURFACE_HAZARD';
+
+        let warning = '';
+        if (isWaterlog) {
+          warning = 'Waterlogged road ahead. Road surface may be uneven. Proceed cautiously.';
+        } else if (hazard.severity === 'critical') {
+          warning = `Critical ${hazard.category.replace('_', ' ')} detected ~${distanceMetersRounded}m from route in ${hazard.locality}`;
+        } else {
+          warning = `${hazard.category.replace('_', ' ')} reported near route corridor (${hazard.locality})`;
+        }
 
         hazardsOnRoute.push({
           hazard,
           distanceAlongRouteMeters: Math.round(distAlongRoute),
           lateralDistanceMeters: distanceMetersRounded,
-          warningMessage: warning
+          warningMessage: warning,
+          isWaterloggedWarning: isWaterlog
         });
       }
     });
@@ -170,13 +178,21 @@ export const RoutingService = {
     // Sort hazards in order of appearance along route
     hazardsOnRoute.sort((a, b) => a.distanceAlongRouteMeters - b.distanceAlongRouteMeters);
 
-    // Compute simple safety score 1-10 (not accident probability)
+    // Compute simple safety score 1-10
     const criticalCount = hazardsOnRoute.filter((h) => h.hazard.severity === 'critical').length;
     const highCount = hazardsOnRoute.filter((h) => h.hazard.severity === 'high').length;
     const moderateCount = hazardsOnRoute.filter((h) => h.hazard.severity === 'moderate').length;
 
     let safetyScore = 10 - criticalCount * 2.5 - highCount * 1.5 - moderateCount * 0.5;
     safetyScore = Math.max(1, Math.min(10, Math.round(safetyScore * 10) / 10));
+
+    // Strictly advisory language: never claim 100% safe
+    const safetySummary =
+      hazardsOnRoute.length > 0
+        ? `Known reports indicate ${hazardsOnRoute.length} road ${
+            hazardsOnRoute.length === 1 ? 'hazard' : 'hazards'
+          } along this route corridor. Exercise caution.`
+        : 'Fewer currently reported hazards on this route corridor. Road conditions change continuously; remain alert.';
 
     return {
       startName,
@@ -187,16 +203,16 @@ export const RoutingService = {
       durationMinutes,
       coordinates,
       hazardsOnRoute,
-      safetyScore
+      safetyScore,
+      safetySummary
     };
   },
 
   generateFallbackPolyline(start: [number, number], end: [number, number]): [number, number][] {
     const points: [number, number][] = [start];
-    const steps = 12;
+    const steps = 14;
     for (let i = 1; i < steps; i++) {
       const ratio = i / steps;
-      // Add slight curvature to mimic real streets
       const lateralJitter = Math.sin(ratio * Math.PI) * 0.004;
       const lat = start[0] + (end[0] - start[0]) * ratio + lateralJitter * 0.4;
       const lng = start[1] + (end[1] - start[1]) * ratio + lateralJitter;
@@ -206,20 +222,17 @@ export const RoutingService = {
     return points;
   },
 
-  /**
-   * Optional browser speech synthesis advisory alert
-   */
   speakHazardAlert(text: string) {
     if ('speechSynthesis' in window) {
       try {
-        window.speechSynthesis.cancel(); // Stop any pending utterances
+        window.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.rate = 1.05;
         utterance.pitch = 1.0;
-        utterance.volume = 0.9;
+        utterance.volume = 1.0;
         window.speechSynthesis.speak(utterance);
       } catch (err) {
-        console.warn('Speech synthesis alert could not be played:', err);
+        console.warn('Speech synthesis alert error:', err);
       }
     }
   }

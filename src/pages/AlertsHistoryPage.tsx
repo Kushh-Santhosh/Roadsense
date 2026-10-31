@@ -104,3 +104,4 @@ export const AlertsHistoryPage: React.FC = () => {
     </div>
   );
 };
+

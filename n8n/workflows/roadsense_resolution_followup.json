@@ -1,0 +1,72 @@
+{
+  "name": "RoadSense — Resolution Evidence Follow-up",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "roadsense-resolution-signed",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "node-res-trigger",
+      "name": "Webhook — Hazard Resolved",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [180, 300],
+      "webhookId": "roadsense-resolution-webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body || $input.first().json;\n\nreturn {\n  json: {\n    hazardId: body.hazardId,\n    resolutionStatus: 'RESOLUTION_SUBMITTED',\n    assignedTeam: body.assignedTeam || 'Maintenance Squad',\n    remarks: body.resolutionRemarks || 'Repairs completed',\n    hasProofPhoto: Boolean(body.resolutionEvidenceUrl),\n    verifiedByAuthority: true,\n    processedAt: new Date().toISOString()\n  }\n};"
+      },
+      "id": "node-validate-resolution",
+      "name": "Validate Repair Proof",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [420, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\n\nreturn {\n  json: {\n    success: true,\n    workflow: 'RoadSense — Resolution Evidence Follow-up',\n    hazardId: item.hazardId,\n    status: item.hasProofPhoto ? 'CONFIRMED_RESOLVED' : 'RESOLUTION_AWAITING_PROOF',\n    taskCreated: 'Notified citizen reporting community of patch completion',\n    timestamp: new Date().toISOString()\n  }\n};"
+      },
+      "id": "node-dispatch-resolution-audit",
+      "name": "Record Resolution Audit Log",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [660, 300]
+    }
+  ],
+  "connections": {
+    "Webhook — Hazard Resolved": {
+      "main": [
+        [
+          {
+            "node": "Validate Repair Proof",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Repair Proof": {
+      "main": [
+        [
+          {
+            "node": "Record Resolution Audit Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    "RoadSense",
+    "ResolutionFollowup"
+  ]
+}

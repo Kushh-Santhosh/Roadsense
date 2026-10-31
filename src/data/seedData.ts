@@ -1,4 +1,4 @@
-import { Hazard, UserProfile, SensorImpactEvent, AdminAuditLog, NotificationItem } from '../types';
+import { Hazard, UserProfile, SensorImpactEvent, AdminAuditLog, NotificationItem, CanonicalVerificationStatus } from '../types';
 
 export const DEMO_USERS: UserProfile[] = [
   {
@@ -66,20 +66,73 @@ export const INITIAL_HAZARDS: Hazard[] = [
     longitude: 77.5970,
     address: 'Near Esteem Mall / Hebbal Flyover descending ramp, ORR',
     locality: 'Hebbal',
-    status: 'community_confirmed',
-    confidenceScore: 96,
-    reportsCount: 4,
+    status: 'COMMUNITY_CORROBORATED',
+    canonicalStatus: 'COMMUNITY_CORROBORATED',
+    confidenceScore: 94,
+    reportsCount: 3,
     confirmationsCount: 18,
     stillPresentVotes: 17,
     noLongerPresentVotes: 1,
     primaryImageUrl: 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&w=800&q=80',
     firstReportedAt: '2026-10-27T08:15:00Z',
-    lastUpdatedAt: '2026-10-30T17:40:00Z',
+    lastUpdatedAt: '2026-10-31T05:30:00Z',
     aiDetected: true,
     sensorDetected: true,
     assignedTeam: 'North Zone Rapid Maintenance Squad',
     internalNotes: 'Flagged for urgent cold-mix patch. High-speed corridor with heavy motorcycle volume.',
     isDemo: true,
+    evidence: {
+      aiSuggestion: {
+        category: 'Pothole (D40)',
+        damageType: 'Structural Pavement Depression',
+        confidence: 0.94,
+        isModelBacked: true
+      },
+      independentRiderConfirmations: 8,
+      uniqueUserIdsConfirmed: ['user-arjun', 'user-kushal', 'user-ananya'],
+      hasPhotoEvidence: true,
+      lastConfirmedAt: '2026-10-31T05:30:00Z',
+      sensorCandidateCount: 4,
+      isDisputed: false
+    },
+    trustTimeline: [
+      {
+        id: 'tt-101',
+        stage: 'NEWLY_REPORTED',
+        timestamp: '2026-10-27T08:15:00Z',
+        title: 'Initial Citizen Report Filed',
+        actor: 'Arjun Mehta (Rider)',
+        details: 'Submitted with geo-tagged photographic evidence via smartphone camera.',
+        evidenceType: 'citizen_report'
+      },
+      {
+        id: 'tt-102',
+        stage: 'UNDER_REVIEW',
+        timestamp: '2026-10-27T08:16:00Z',
+        title: 'AI Vision Analysis Computed',
+        actor: 'RoadScan AI Engine (RDD2022)',
+        details: 'Identified Pothole (D40) with 94% model confidence and structural cavity bounding box.',
+        evidenceType: 'ai_inference'
+      },
+      {
+        id: 'tt-103',
+        stage: 'COMMUNITY_CORROBORATED',
+        timestamp: '2026-10-28T09:20:00Z',
+        title: 'Corroborated by Independent Commuters',
+        actor: '8 Verified Riders',
+        details: 'Multiple riders voted still present. Sensor telemetry recorded vertical acceleration spikes.',
+        evidenceType: 'community_vote'
+      },
+      {
+        id: 'tt-104',
+        stage: 'RECENTLY_CONFIRMED',
+        timestamp: '2026-10-31T05:30:00Z',
+        title: 'Recent Confirmation Logged',
+        actor: 'Kushal Gowda (Rider)',
+        details: 'Confirmed still active during morning commute.',
+        evidenceType: 'community_vote'
+      }
+    ],
     reports: [
       {
         id: 'rep-heb-101',
@@ -133,6 +186,100 @@ export const INITIAL_HAZARDS: Hazard[] = [
     ]
   },
   {
+    id: 'haz-krpuram-04',
+    title: 'Waterlogged Road — Potentially Hidden Surface Hazard',
+    description: 'Stagnant rainwater submerges road carriageway under the railway bridge. Submerged road surface depth and condition cannot be seen. Risk of hidden depressions or loose gravel.',
+    category: 'waterlogged_road',
+    additionalLabel: 'POTENTIALLY_HIDDEN_SURFACE_HAZARD',
+    severity: 'critical',
+    latitude: 13.0012,
+    longitude: 77.6834,
+    address: 'Old Madras Road under KR Puram Railway Hanging Bridge',
+    locality: 'KR Puram',
+    status: 'RECENTLY_CONFIRMED',
+    canonicalStatus: 'RECENTLY_CONFIRMED',
+    confidenceScore: 95,
+    reportsCount: 5,
+    confirmationsCount: 24,
+    stillPresentVotes: 23,
+    noLongerPresentVotes: 1,
+    primaryImageUrl: 'https://images.unsplash.com/photo-1547683905-f686c993aae5?auto=format&fit=crop&w=800&q=80',
+    firstReportedAt: '2026-10-25T19:30:00Z',
+    lastUpdatedAt: '2026-10-31T06:05:00Z',
+    aiDetected: false,
+    sensorDetected: true,
+    assignedTeam: 'Stormwater & Underpass Taskforce',
+    isDemo: true,
+    evidence: {
+      aiSuggestion: {
+        category: 'Waterlogged Carriageway',
+        damageType: 'Obscured Sub-Surface Condition',
+        confidence: 0.91,
+        isModelBacked: false
+      },
+      independentRiderConfirmations: 12,
+      uniqueUserIdsConfirmed: ['user-arjun', 'user-kushal', 'user-ananya'],
+      hasPhotoEvidence: true,
+      lastConfirmedAt: '2026-10-31T06:05:00Z',
+      sensorCandidateCount: 5,
+      isDisputed: false
+    },
+    trustTimeline: [
+      {
+        id: 'tt-401',
+        stage: 'NEWLY_REPORTED',
+        timestamp: '2026-10-25T19:30:00Z',
+        title: 'Waterlogged Hazard Reported',
+        actor: 'Arjun Mehta (Rider)',
+        details: 'Reported persistent flood water under bridge. Surface depth unknown.',
+        evidenceType: 'citizen_report'
+      },
+      {
+        id: 'tt-402',
+        stage: 'COMMUNITY_CORROBORATED',
+        timestamp: '2026-10-27T11:00:00Z',
+        title: 'Multiple Independent Confirmations',
+        actor: '12 Commuters',
+        details: 'Riders confirmed water level reaches 6-8 inches, completely hiding potholes and drains beneath.',
+        evidenceType: 'community_vote'
+      },
+      {
+        id: 'tt-403',
+        stage: 'RECENTLY_CONFIRMED',
+        timestamp: '2026-10-31T06:05:00Z',
+        title: 'Confirmed by Morning Rider',
+        actor: 'Ananya Sharma (Rider)',
+        details: 'Water remains accumulated after overnight rain. Caution advised.',
+        evidenceType: 'community_vote'
+      }
+    ],
+    reports: [
+      {
+        id: 'rep-kr-401',
+        hazardId: 'haz-krpuram-04',
+        userId: 'user-arjun',
+        userName: 'Arjun Mehta',
+        latitude: 13.0012,
+        longitude: 77.6834,
+        address: 'Old Madras Road under KR Puram Railway Hanging Bridge',
+        locality: 'KR Puram',
+        timestamp: '2026-10-25T19:30:00Z',
+        imageUrl: 'https://images.unsplash.com/photo-1547683905-f686c993aae5?auto=format&fit=crop&w=800&q=80',
+        category: 'waterlogged_road',
+        additionalLabel: 'POTENTIALLY_HIDDEN_SURFACE_HAZARD',
+        userConfirmedCategory: 'waterlogged_road',
+        severity: 'critical',
+        confidenceScore: 95,
+        verificationStatus: 'community_confirmed',
+        description: 'Water does not drain away. Road surface underneath cannot be seen; sudden dips cause loss of steering control.',
+        upvotes: 27,
+        downvotes: 0,
+        isDemo: true
+      }
+    ],
+    confirmations: []
+  },
+  {
     id: 'haz-indira-02',
     title: 'Dislodged Storm Drain Grate on 100 Feet Road',
     description: 'Steel grill over drainage culvert is sunken 4 inches below tarmac. Wheel trap hazard for narrow two-wheeler tyres.',
@@ -142,7 +289,8 @@ export const INITIAL_HAZARDS: Hazard[] = [
     longitude: 77.6412,
     address: '100 Feet Road, opposite Metro Pillar 84, Indiranagar',
     locality: 'Indiranagar',
-    status: 'forwarded_review',
+    status: 'UNDER_REVIEW',
+    canonicalStatus: 'UNDER_REVIEW',
     confidenceScore: 91,
     reportsCount: 3,
     confirmationsCount: 14,
@@ -156,6 +304,40 @@ export const INITIAL_HAZARDS: Hazard[] = [
     assignedTeam: 'East Zone Road & Utility Cell',
     internalNotes: 'Inspection scheduled with BWSSB drainage engineering sub-division.',
     isDemo: true,
+    evidence: {
+      aiSuggestion: {
+        category: 'Damaged Utility Cover',
+        damageType: 'Sunken Grate Depression',
+        confidence: 0.89,
+        isModelBacked: true
+      },
+      independentRiderConfirmations: 6,
+      uniqueUserIdsConfirmed: ['user-kushal', 'user-arjun'],
+      hasPhotoEvidence: true,
+      lastConfirmedAt: '2026-10-30T14:10:00Z',
+      sensorCandidateCount: 1,
+      isDisputed: false
+    },
+    trustTimeline: [
+      {
+        id: 'tt-201',
+        stage: 'NEWLY_REPORTED',
+        timestamp: '2026-10-28T11:45:00Z',
+        title: 'Initial Citizen Report',
+        actor: 'Kushal Gowda (Rider)',
+        details: 'Photo submitted showing loose steel grating sunken 4 inches below tarmac.',
+        evidenceType: 'citizen_report'
+      },
+      {
+        id: 'tt-202',
+        stage: 'UNDER_REVIEW',
+        timestamp: '2026-10-29T10:00:00Z',
+        title: 'Authority Review Initiated',
+        actor: 'R. K. Narayanan (Divisional Road Engineer)',
+        details: 'Forwarded for joint inspection with BWSSB stormwater wing.',
+        evidenceType: 'authority_action'
+      }
+    ],
     reports: [
       {
         id: 'rep-ind-201',
@@ -198,7 +380,8 @@ export const INITIAL_HAZARDS: Hazard[] = [
     longitude: 77.7289,
     address: 'ITPL Main Road, Pattandur Agrahara, Whitefield',
     locality: 'Whitefield',
-    status: 'community_confirmed',
+    status: 'COMMUNITY_CORROBORATED',
+    canonicalStatus: 'COMMUNITY_CORROBORATED',
     confidenceScore: 87,
     reportsCount: 2,
     confirmationsCount: 11,
@@ -211,6 +394,40 @@ export const INITIAL_HAZARDS: Hazard[] = [
     sensorDetected: true,
     assignedTeam: 'Mahadevapura Pavement Unit',
     isDemo: true,
+    evidence: {
+      aiSuggestion: {
+        category: 'Alligator Cracking (D20)',
+        damageType: 'Interconnected Fatigue Matrix',
+        confidence: 0.92,
+        isModelBacked: true
+      },
+      independentRiderConfirmations: 5,
+      uniqueUserIdsConfirmed: ['user-ananya'],
+      hasPhotoEvidence: true,
+      lastConfirmedAt: '2026-10-30T10:15:00Z',
+      sensorCandidateCount: 2,
+      isDisputed: false
+    },
+    trustTimeline: [
+      {
+        id: 'tt-301',
+        stage: 'NEWLY_REPORTED',
+        timestamp: '2026-10-26T16:20:00Z',
+        title: 'Initial Citizen Report',
+        actor: 'Ananya Sharma (Rider)',
+        details: 'Reported extensive alligator cracking near ITPL Gate 3.',
+        evidenceType: 'citizen_report'
+      },
+      {
+        id: 'tt-302',
+        stage: 'COMMUNITY_CORROBORATED',
+        timestamp: '2026-10-28T14:00:00Z',
+        title: 'Corroborated by Tech Park Commuters',
+        actor: '5 Independent Two-Wheeler Riders',
+        details: 'Multiple riders confirmed loose gravel and vibration risk.',
+        evidenceType: 'community_vote'
+      }
+    ],
     reports: [
       {
         id: 'rep-wh-301',
@@ -245,64 +462,18 @@ export const INITIAL_HAZARDS: Hazard[] = [
     confirmations: []
   },
   {
-    id: 'haz-krpuram-04',
-    title: 'Recurrent Waterlogging & Hidden Crater under Bridge',
-    description: 'Stagnant water hides a sharp 8-inch road crater beneath the railway hanging bridge. Invisible after sunset.',
-    category: 'waterlogging',
-    severity: 'critical',
-    latitude: 13.0012,
-    longitude: 77.6834,
-    address: 'Old Madras Road under KR Puram Railway Hanging Bridge',
-    locality: 'KR Puram',
-    status: 'community_confirmed',
-    confidenceScore: 95,
-    reportsCount: 5,
-    confirmationsCount: 24,
-    stillPresentVotes: 23,
-    noLongerPresentVotes: 1,
-    primaryImageUrl: 'https://images.unsplash.com/photo-1547683905-f686c993aae5?auto=format&fit=crop&w=800&q=80',
-    firstReportedAt: '2026-10-25T19:30:00Z',
-    lastUpdatedAt: '2026-10-30T19:10:00Z',
-    aiDetected: false,
-    sensorDetected: true,
-    assignedTeam: 'Stormwater & Underpass Taskforce',
-    isDemo: true,
-    reports: [
-      {
-        id: 'rep-kr-401',
-        hazardId: 'haz-krpuram-04',
-        userId: 'user-arjun',
-        userName: 'Arjun Mehta',
-        latitude: 13.0012,
-        longitude: 77.6834,
-        address: 'Old Madras Road under KR Puram Railway Hanging Bridge',
-        locality: 'KR Puram',
-        timestamp: '2026-10-25T19:30:00Z',
-        imageUrl: 'https://images.unsplash.com/photo-1547683905-f686c993aae5?auto=format&fit=crop&w=800&q=80',
-        category: 'waterlogging',
-        userConfirmedCategory: 'waterlogging',
-        severity: 'critical',
-        confidenceScore: 95,
-        verificationStatus: 'community_confirmed',
-        description: 'Water does not drain away. Pothole underneath causes water splashes and loss of steering control.',
-        upvotes: 27,
-        downvotes: 0,
-        isDemo: true
-      }
-    ],
-    confirmations: []
-  },
-  {
     id: 'haz-marathahalli-05',
-    title: 'Damaged Road Shoulder & Exposed Utility Duct',
-    description: 'Road edge collapsed into roadside trench due to fiber optic cable excavation. Sharp bitumen drop-off.',
-    category: 'damaged_edge',
+    title: 'Waterlogged Shoulder with Collapsed Drainage Edge',
+    description: 'Road edge collapsed into roadside trench due to utility excavation. Surface water pools over edge, making trench drop-off invisible.',
+    category: 'waterlogged_road',
+    additionalLabel: 'POTENTIALLY_HIDDEN_SURFACE_HAZARD',
     severity: 'high',
     latitude: 12.9562,
     longitude: 77.7011,
     address: 'Service Road adjacent to Marathahalli Bridge, ORR Junction',
     locality: 'Marathahalli',
-    status: 'under_verification',
+    status: 'UNDER_REVIEW',
+    canonicalStatus: 'UNDER_REVIEW',
     confidenceScore: 78,
     reportsCount: 2,
     confirmationsCount: 6,
@@ -310,10 +481,44 @@ export const INITIAL_HAZARDS: Hazard[] = [
     noLongerPresentVotes: 0,
     primaryImageUrl: 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=800&q=80',
     firstReportedAt: '2026-10-29T14:15:00Z',
-    lastUpdatedAt: '2026-10-30T08:20:00Z',
+    lastUpdatedAt: '2026-10-31T04:20:00Z',
     aiDetected: true,
     sensorDetected: false,
     isDemo: true,
+    evidence: {
+      aiSuggestion: {
+        category: 'Pavement Edge Damage',
+        damageType: 'Edge Ravelling & Trench Collapse',
+        confidence: 0.84,
+        isModelBacked: true
+      },
+      independentRiderConfirmations: 3,
+      uniqueUserIdsConfirmed: ['user-ananya'],
+      hasPhotoEvidence: true,
+      lastConfirmedAt: '2026-10-31T04:20:00Z',
+      sensorCandidateCount: 0,
+      isDisputed: false
+    },
+    trustTimeline: [
+      {
+        id: 'tt-501',
+        stage: 'NEWLY_REPORTED',
+        timestamp: '2026-10-29T14:15:00Z',
+        title: 'Initial Hazard Reported',
+        actor: 'Ananya Sharma (Rider)',
+        details: 'Reported trench collapse with water pooling.',
+        evidenceType: 'citizen_report'
+      },
+      {
+        id: 'tt-502',
+        stage: 'UNDER_REVIEW',
+        timestamp: '2026-10-30T09:00:00Z',
+        title: 'Scheduled for Barricading',
+        actor: 'Mahadevapura Ward Engineering Squad',
+        details: 'Temporary hazard signs requested for waterlogged shoulder.',
+        evidenceType: 'authority_action'
+      }
+    ],
     reports: [
       {
         id: 'rep-mar-501',
@@ -326,18 +531,19 @@ export const INITIAL_HAZARDS: Hazard[] = [
         locality: 'Marathahalli',
         timestamp: '2026-10-29T14:15:00Z',
         imageUrl: 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=800&q=80',
-        category: 'damaged_edge',
+        category: 'waterlogged_road',
+        additionalLabel: 'POTENTIALLY_HIDDEN_SURFACE_HAZARD',
         aiClassification: {
           detectedCategory: 'Pavement Edge Damage',
           confidence: 0.84,
           boundingBox: [0.2, 0.45, 0.9, 0.95],
           damageType: 'Edge Ravelling & Trench Collapse'
         },
-        userConfirmedCategory: 'damaged_edge',
+        userConfirmedCategory: 'waterlogged_road',
         severity: 'high',
         confidenceScore: 78,
         verificationStatus: 'under_verification',
-        description: 'Trench was left unfilled after cable laying. Any two-wheeler hugging the left curb will slide into it.',
+        description: 'Trench was left unfilled after cable laying. Surface water hides the edge drop-off.',
         upvotes: 9,
         downvotes: 0,
         isDemo: true
@@ -355,7 +561,8 @@ export const INITIAL_HAZARDS: Hazard[] = [
     longitude: 77.6601,
     address: 'Electronics City Phase 1 Elevated Tollway Off-Ramp',
     locality: 'Electronic City',
-    status: 'community_confirmed',
+    status: 'COMMUNITY_CORROBORATED',
+    canonicalStatus: 'COMMUNITY_CORROBORATED',
     confidenceScore: 84,
     reportsCount: 3,
     confirmationsCount: 16,
@@ -368,6 +575,40 @@ export const INITIAL_HAZARDS: Hazard[] = [
     sensorDetected: true,
     assignedTeam: 'Elevated Expressway Authority Wing',
     isDemo: true,
+    evidence: {
+      aiSuggestion: {
+        category: 'Expansion Joint Heave',
+        damageType: 'Bridge Deck Elevation Differential',
+        confidence: 0.75,
+        isModelBacked: false
+      },
+      independentRiderConfirmations: 7,
+      uniqueUserIdsConfirmed: ['user-kushal'],
+      hasPhotoEvidence: true,
+      lastConfirmedAt: '2026-10-30T12:00:00Z',
+      sensorCandidateCount: 8,
+      isDisputed: false
+    },
+    trustTimeline: [
+      {
+        id: 'tt-601',
+        stage: 'NEWLY_REPORTED',
+        timestamp: '2026-10-27T07:45:00Z',
+        title: 'Sensor Spike Flagged',
+        actor: 'Kushal Gowda (Rider Mode)',
+        details: 'Candidate accelerometer event detected (14.1 m/s² vertical jerk at 48 km/h).',
+        evidenceType: 'sensor_candidate'
+      },
+      {
+        id: 'tt-602',
+        stage: 'COMMUNITY_CORROBORATED',
+        timestamp: '2026-10-28T16:00:00Z',
+        title: 'Corroborated by Electronic City Riders',
+        actor: '7 Commuters',
+        details: 'Confirmed noticeable bump requiring sharp deceleration.',
+        evidenceType: 'community_vote'
+      }
+    ],
     reports: [
       {
         id: 'rep-ec-601',
@@ -404,18 +645,44 @@ export const INITIAL_HAZARDS: Hazard[] = [
     longitude: 77.5963,
     address: 'Major Sandeep Unnikrishnan Road, Yelahanka New Town',
     locality: 'Yelahanka',
-    status: 'submitted',
+    status: 'NEWLY_REPORTED',
+    canonicalStatus: 'NEWLY_REPORTED',
     confidenceScore: 65,
     reportsCount: 1,
     confirmationsCount: 2,
     stillPresentVotes: 2,
     noLongerPresentVotes: 0,
     primaryImageUrl: 'https://images.unsplash.com/photo-1508873696983-2df5293cb395?auto=format&fit=crop&w=800&q=80',
-    firstReportedAt: '2026-10-30T07:10:00Z',
-    lastUpdatedAt: '2026-10-30T07:10:00Z',
+    firstReportedAt: '2026-10-31T05:10:00Z',
+    lastUpdatedAt: '2026-10-31T05:10:00Z',
     aiDetected: true,
     sensorDetected: false,
     isDemo: true,
+    evidence: {
+      aiSuggestion: {
+        category: 'Longitudinal Cut (D00)',
+        damageType: 'Trench Cut / Longitudinal Fissure',
+        confidence: 0.88,
+        isModelBacked: true
+      },
+      independentRiderConfirmations: 1,
+      uniqueUserIdsConfirmed: ['user-arjun'],
+      hasPhotoEvidence: true,
+      lastConfirmedAt: '2026-10-31T05:10:00Z',
+      sensorCandidateCount: 0,
+      isDisputed: false
+    },
+    trustTimeline: [
+      {
+        id: 'tt-701',
+        stage: 'NEWLY_REPORTED',
+        timestamp: '2026-10-31T05:10:00Z',
+        title: 'Citizen Report Filed',
+        actor: 'Arjun Mehta (Rider)',
+        details: 'Photo submitted showing un-asphalted trench with loose gravel.',
+        evidenceType: 'citizen_report'
+      }
+    ],
     reports: [
       {
         id: 'rep-yel-701',
@@ -426,7 +693,7 @@ export const INITIAL_HAZARDS: Hazard[] = [
         longitude: 77.5963,
         address: 'Major Sandeep Unnikrishnan Road, Yelahanka New Town',
         locality: 'Yelahanka',
-        timestamp: '2026-10-30T07:10:00Z',
+        timestamp: '2026-10-31T05:10:00Z',
         imageUrl: 'https://images.unsplash.com/photo-1508873696983-2df5293cb395?auto=format&fit=crop&w=800&q=80',
         category: 'road_construction',
         aiClassification: {
@@ -457,7 +724,8 @@ export const INITIAL_HAZARDS: Hazard[] = [
     longitude: 77.6385,
     address: 'Near CMH Hospital Junction, Indiranagar',
     locality: 'Indiranagar',
-    status: 'resolved',
+    status: 'CONFIRMED_RESOLVED',
+    canonicalStatus: 'CONFIRMED_RESOLVED',
     confidenceScore: 98,
     reportsCount: 6,
     confirmationsCount: 31,
@@ -465,14 +733,66 @@ export const INITIAL_HAZARDS: Hazard[] = [
     noLongerPresentVotes: 30,
     primaryImageUrl: 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=800&q=80',
     firstReportedAt: '2026-10-20T10:00:00Z',
-    lastUpdatedAt: '2026-10-29T16:30:00Z',
-    resolvedAt: '2026-10-29T16:30:00Z',
+    lastUpdatedAt: '2026-10-30T16:30:00Z',
+    resolvedAt: '2026-10-30T16:30:00Z',
     resolutionRemarks: 'Bituminous hot-mix patching completed and rolling compaction verified by site engineer.',
     resolutionEvidenceUrl: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80',
     aiDetected: true,
     sensorDetected: true,
     assignedTeam: 'East Zone Rapid Maintenance Squad',
     isDemo: true,
+    evidence: {
+      aiSuggestion: {
+        category: 'Repaired Bituminous Patch',
+        damageType: 'Surface Restored',
+        confidence: 0.96,
+        isModelBacked: true
+      },
+      independentRiderConfirmations: 24,
+      uniqueUserIdsConfirmed: ['user-kushal', 'user-arjun', 'user-ananya'],
+      hasPhotoEvidence: true,
+      lastConfirmedAt: '2026-10-30T16:30:00Z',
+      sensorCandidateCount: 1,
+      isDisputed: false
+    },
+    trustTimeline: [
+      {
+        id: 'tt-801',
+        stage: 'NEWLY_REPORTED',
+        timestamp: '2026-10-20T10:00:00Z',
+        title: 'Deep Sinkhole Reported',
+        actor: 'Citizen Rider',
+        details: 'Severe cavity reported after heavy rain.',
+        evidenceType: 'citizen_report'
+      },
+      {
+        id: 'tt-802',
+        stage: 'COMMUNITY_CORROBORATED',
+        timestamp: '2026-10-22T08:00:00Z',
+        title: 'Confirmed by Multiple Riders',
+        actor: '24 Community Commuters',
+        details: 'Strong corroboration logged across morning and evening peak traffic.',
+        evidenceType: 'community_vote'
+      },
+      {
+        id: 'tt-803',
+        stage: 'RESOLUTION_SUBMITTED',
+        timestamp: '2026-10-29T17:00:00Z',
+        title: 'Patch Work Completed by Squad',
+        actor: 'East Zone Rapid Maintenance Squad',
+        details: 'Hot-mix bituminous patch poured and roller compacted.',
+        evidenceType: 'authority_action'
+      },
+      {
+        id: 'tt-804',
+        stage: 'CONFIRMED_RESOLVED',
+        timestamp: '2026-10-30T16:30:00Z',
+        title: 'Rider Consensus Confirms Repaired',
+        actor: 'R. K. Narayanan (Divisional Road Engineer)',
+        details: 'Community consensus (30 votes "no longer present") and post-repair proof photo confirmed.',
+        evidenceType: 'authority_action'
+      }
+    ],
     reports: [],
     confirmations: []
   }
@@ -481,7 +801,7 @@ export const INITIAL_HAZARDS: Hazard[] = [
 export const INITIAL_SENSOR_EVENTS: SensorImpactEvent[] = [
   {
     id: 'sens-ev-01',
-    timestamp: '2026-10-30T17:42:15Z',
+    timestamp: '2026-10-31T05:42:15Z',
     latitude: 13.0359,
     longitude: 77.5969,
     locality: 'Hebbal (ORR)',
@@ -490,11 +810,12 @@ export const INITIAL_SENSOR_EVENTS: SensorImpactEvent[] = [
     speedKmh: 42,
     candidateScore: 92,
     status: 'unreviewed',
-    notes: 'Severe vertical acceleration spike consistent with pothole impact at cruising speed.'
+    notes: 'Severe vertical acceleration spike consistent with pothole impact at cruising speed.',
+    categoryHint: 'SENSOR_CANDIDATE'
   },
   {
     id: 'sens-ev-02',
-    timestamp: '2026-10-30T18:15:30Z',
+    timestamp: '2026-10-31T06:15:30Z',
     latitude: 12.9855,
     longitude: 77.7290,
     locality: 'Whitefield (ITPL Rd)',
@@ -503,7 +824,8 @@ export const INITIAL_SENSOR_EVENTS: SensorImpactEvent[] = [
     speedKmh: 36,
     candidateScore: 78,
     status: 'unreviewed',
-    notes: 'Rhythmic vertical oscillation detected matching severe alligator pavement cracking.'
+    notes: 'Rhythmic vertical oscillation detected matching severe alligator pavement cracking.',
+    categoryHint: 'SENSOR_CANDIDATE'
   },
   {
     id: 'sens-ev-03',
@@ -516,43 +838,44 @@ export const INITIAL_SENSOR_EVENTS: SensorImpactEvent[] = [
     speedKmh: 48,
     candidateScore: 84,
     status: 'converted_to_report',
-    notes: 'Confirmed and linked to expansion joint hazard report.'
+    notes: 'Confirmed and linked to expansion joint hazard report.',
+    categoryHint: 'SENSOR_CANDIDATE'
   }
 ];
 
 export const INITIAL_AUDIT_LOGS: AdminAuditLog[] = [
   {
     id: 'log-01',
-    timestamp: '2026-10-29T16:30:00Z',
+    timestamp: '2026-10-30T16:30:00Z',
     actorId: 'admin-officer',
     actorName: 'R. K. Narayanan (Divisional Road Engineer)',
     actorRole: 'Authority Site Lead',
     action: 'HAZARD_RESOLVED',
     targetId: 'haz-resolved-08',
     targetType: 'hazard',
-    details: 'Verified patch completion on CMH Road; status changed to RESOLVED with post-repair photographic proof.'
+    details: 'Verified patch completion on CMH Road; status changed to CONFIRMED_RESOLVED with post-repair photographic proof.'
   },
   {
     id: 'log-02',
-    timestamp: '2026-10-28T14:10:00Z',
+    timestamp: '2026-10-30T14:10:00Z',
     actorId: 'admin-officer',
     actorName: 'R. K. Narayanan (Divisional Road Engineer)',
     actorRole: 'Authority Site Lead',
     action: 'STATUS_UPDATED',
     targetId: 'haz-indira-02',
     targetType: 'hazard',
-    details: 'Elevated status to FORWARDED_FOR_REVIEW. Assigned to East Zone Utility Cell for urgent grate replacement.'
+    details: 'Elevated status to UNDER_REVIEW. Assigned to East Zone Utility Cell for urgent grate replacement.'
   },
   {
     id: 'log-03',
-    timestamp: '2026-10-27T10:15:00Z',
-    actorId: 'system',
-    actorName: 'RoadSense Verification Engine',
-    actorRole: 'Automated Clustering',
-    action: 'DUPLICATE_GROUPED',
-    targetId: 'haz-hebbal-01',
-    targetType: 'hazard',
-    details: 'Automatically clustered 3 independent community reports within 35-meter radius on Hebbal ORR ramp.'
+    timestamp: '2026-10-31T06:00:00Z',
+    actorId: 'n8n-automation',
+    actorName: 'n8n — Hazard Freshness Monitor',
+    actorRole: 'Automated Scheduled Workflow',
+    action: 'FRESHNESS_CHECK_COMPLETED',
+    targetId: 'haz-krpuram-04',
+    targetType: 'n8n',
+    details: 'Reconfirmation window checked for waterlogged roads (< 12 hrs). Marked RECENTLY_CONFIRMED.'
   }
 ];
 
@@ -560,6 +883,16 @@ export const INITIAL_NOTIFICATIONS: NotificationItem[] = [
   {
     id: 'notif-01',
     timestamp: '10 minutes ago',
+    title: 'Waterlogged Road Warning Ahead',
+    message: 'Old Madras Road under KR Puram Railway Bridge has standing water. Road surface depth cannot be seen. Proceed cautiously.',
+    type: 'waterlog_warning',
+    hazardId: 'haz-krpuram-04',
+    read: false,
+    severity: 'critical'
+  },
+  {
+    id: 'notif-02',
+    timestamp: '45 minutes ago',
     title: 'Early Warning: Critical Pothole Ahead',
     message: 'Outer Ring Road near Hebbal flyover ramp has a severe pothole cluster reported 180m ahead.',
     type: 'hazard_proximity',
@@ -568,23 +901,13 @@ export const INITIAL_NOTIFICATIONS: NotificationItem[] = [
     severity: 'critical'
   },
   {
-    id: 'notif-02',
+    id: 'notif-03',
     timestamp: '2 hours ago',
     title: 'Community Verified Your Report',
     message: '14 fellow riders confirmed your report on 100 Feet Road dislodged grate. Trust score increased +15!',
     type: 'report_confirmed',
     hazardId: 'haz-indira-02',
     read: false,
-    severity: 'info'
-  },
-  {
-    id: 'notif-03',
-    timestamp: 'Yesterday',
-    title: 'Hazard Resolved in Indiranagar',
-    message: 'CMH Hospital junction pothole was patched and verified resolved by maintenance crew.',
-    type: 'hazard_resolved',
-    hazardId: 'haz-resolved-08',
-    read: true,
     severity: 'info'
   }
 ];
