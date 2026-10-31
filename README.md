@@ -112,23 +112,43 @@ RoadSense tracks hazards through an 8-stage verification lifecycle with transpar
 
 ---
 
-## 7. Repeatable Automated Testing
+## 7. Repeatable Automated Testing & Browser Verification
 
-The project includes three automated testing scripts executed against Google Chrome using `puppeteer-core`:
+The project includes a comprehensive, multi-suite Chrome end-to-end testing infrastructure powered by `puppeteer-core`. Chrome is auto-discovered via `CHROME_PATH` or standard OS binaries on macOS, Linux, and Windows. If the Vite development server is not already running, the test runner starts it automatically and cleanly shuts down only runner-spawned instances upon test completion.
 
 ```bash
-# 1. Audit all 24 registered routes (checks HTTP 200, headings, 0 console errors)
+# Run the complete Master QA Suite (all 5 test suites in sequence)
+npm test
+# or: npm run test:all
+
+# Individual Focused Test Suites:
+
+# 1. 24-Route Inventory Audit (checks HTTP 200, route stability, headings, 0 console errors)
 npm run test:routes
 
-# 2. Fast smoke test (checks landing tiles, dashboard, report submission, persistence, mobile bar)
+# 2. Comprehensive Interaction & Controls Audit (enumerates 842 controls, checks accessibility, exercises 14 active actions)
+npm run test:interactions
+
+# 3. End-to-End User Journey & Multi-Destination Persistence (Rider 1 report -> destinations -> Rider 2 confirmation -> Authority resolution)
+npm run test:journey
+
+# 4. Deep Map Functional & Stability Audit (all 6 Leaflet map instances: container, tiles, popups, zoom, pan, resize, navigate-return)
+npm run test:maps
+
+# 5. Multi-Viewport & Responsive Layout QA (audits 1440x900, 1280x800, 768x1024, 390x844, 375x812 with screenshots)
+npm run test:viewports
+
+# 6. Fast Smoke Test (quick 5-step user flow verification)
 npm run test:smoke
 
-# 3. Master Chrome E2E Suite (multi-viewport testing, DOM inspection, screenshot captures)
-npm run test:e2e
-
-# 4. Production build check (TypeScript strict mode + Vite bundler)
+# 7. Production Build Check (TypeScript strict compilation + Vite bundling)
 npm run build
 ```
+
+### Machine-Readable Test Artifacts
+- `test-results/route-inventory.json`: Route audit records, durations, response codes, headings, and console status.
+- `test-results/interaction-coverage.json`: Control inventory of buttons, links, inputs, accessible names, and exercised actions.
+- Artifacts screenshot directory: High-resolution PNG captures across desktop and mobile viewports.
 
 ---
 

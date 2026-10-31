@@ -7,9 +7,15 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
+    "test": "npm run test:all",
     "test:routes": "node tests/route-inventory.js",
+    "test:interactions": "node tests/interaction-audit.js",
+    "test:journey": "node tests/journey-persistence.js",
+    "test:maps": "node tests/maps-deep-audit.js",
+    "test:viewports": "node tests/viewport-qa.js",
     "test:smoke": "node tests/smoke-test.js",
-    "test:e2e": "node tests/e2e-suite.js"
+    "test:e2e": "node tests/e2e-suite.js",
+    "test:all": "node tests/route-inventory.js && node tests/interaction-audit.js && node tests/journey-persistence.js && node tests/maps-deep-audit.js && node tests/viewport-qa.js"
   },
   "dependencies": {
     "framer-motion": "^12.42.0",

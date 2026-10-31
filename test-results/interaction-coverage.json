@@ -1,0 +1,375 @@
+{
+  "auditDate": "2026-10-31T09:30:28.955Z",
+  "totalDiscoveredControls": 842,
+  "placeholderLinksCount": 0,
+  "namelessButtonsCount": 0,
+  "routesAudited": 24,
+  "exercisedActionsCount": 15,
+  "exercisedActions": [
+    {
+      "action": "Search Input Querying",
+      "route": "/app/map",
+      "status": "PASS"
+    },
+    {
+      "action": "Map Category Filter Selection",
+      "route": "/app/map",
+      "status": "PASS"
+    },
+    {
+      "action": "Sort Dropdown Selection",
+      "route": "/admin/reports",
+      "status": "PASS"
+    },
+    {
+      "action": "Form Validation Feedback",
+      "route": "/app/report",
+      "status": "PASS"
+    },
+    {
+      "action": "Manual Location Entry",
+      "route": "/app/report",
+      "status": "FAIL"
+    },
+    {
+      "action": "RoadScan AI Inspection & Honest Disclaimer",
+      "route": "/app/roadscan",
+      "status": "PASS"
+    },
+    {
+      "action": "Ride Mode Sensor Emulation Start/Stop",
+      "route": "/app/ride",
+      "status": "PASS"
+    },
+    {
+      "action": "Voice Early Warning Toggle",
+      "route": "/app/routes",
+      "status": "PASS"
+    },
+    {
+      "action": "Route Corridor Selection",
+      "route": "/app/routes",
+      "status": "PASS"
+    },
+    {
+      "action": "Alerts History Mark Read",
+      "route": "/app/alerts",
+      "status": "PASS"
+    },
+    {
+      "action": "Modal Dialog Open & Cancel Dismiss",
+      "route": "/app/settings",
+      "status": "PASS"
+    },
+    {
+      "action": "Toast Notification Feedback",
+      "route": "/app/settings",
+      "status": "PASS"
+    },
+    {
+      "action": "Analytics CSV Export",
+      "route": "/admin/analytics",
+      "status": "PASS"
+    },
+    {
+      "action": "Automation Freshness Cron Trigger",
+      "route": "/admin/automation",
+      "status": "PASS"
+    },
+    {
+      "action": "Operations to Rider Navigation Link",
+      "route": "/admin/automation",
+      "status": "PASS"
+    }
+  ],
+  "routeInventory": [
+    {
+      "path": "/",
+      "name": "Public Landing Page",
+      "type": "public",
+      "totalControls": 32,
+      "visibleControls": 31,
+      "buttons": 1,
+      "links": 31,
+      "inputs": 0,
+      "placeholderLinks": 0,
+      "namelessButtons": 0
+    },
+    {
+      "path": "/about",
+      "name": "Problem Statement & Mission",
+      "type": "public",
+      "totalControls": 24,
+      "visibleControls": 23,
+      "buttons": 1,
+      "links": 23,
+      "inputs": 0,
+      "placeholderLinks": 0,
+      "namelessButtons": 0
+    },
+    {
+      "path": "/how-it-works",
+      "name": "How RoadSense Works",
+      "type": "public",
+      "totalControls": 24,
+      "visibleControls": 23,
+      "buttons": 1,
+      "links": 23,
+      "inputs": 0,
+      "placeholderLinks": 0,
+      "namelessButtons": 0
+    },
+    {
+      "path": "/safety",
+      "name": "Safety & Privacy Guidelines",
+      "type": "public",
+      "totalControls": 24,
+      "visibleControls": 23,
+      "buttons": 1,
+      "links": 23,
+      "inputs": 0,
+      "placeholderLinks": 0,
+      "namelessButtons": 0
+    },
+    {
+      "path": "/login",
+      "name": "Sign In Page",
+      "type": "public",
+      "totalControls": 29,
+      "visibleControls": 28,
+      "buttons": 4,
+      "links": 23,
+      "inputs": 2,
+      "placeholderLinks": 0,
+      "namelessButtons": 0
+    },
+    {
+      "path": "/signup",
+      "name": "Join Rider Network",
+      "type": "public",
+      "totalControls": 28,
+      "visibleControls": 27,
+      "buttons": 2,
+      "links": 23,
+      "inputs": 3,
+      "placeholderLinks": 0,
+      "namelessButtons": 0
+    },
+    {
+      "path": "/app",
+      "name": "Rider Dashboard",
+      "type": "rider",
+      "totalControls": 42,
+      "visibleControls": 37,
+      "buttons": 3,
+      "links": 39,
+      "inputs": 0,
+      "placeholderLinks": 0,
+      "namelessButtons": 0
+    },
+    {
+      "path": "/app/map",
+      "name": "Live Road Hazard Map",
+      "type": "rider",
+      "totalControls": 72,
+      "visibleControls": 66,
+      "buttons": 38,
+      "links": 31,
+      "inputs": 3,
+      "placeholderLinks": 0,
+      "namelessButtons": 0
+    },
+    {
+      "path": "/app/report",
+      "name": "Report Road Hazard Form",
+      "type": "rider",
+      "totalControls": 46,
+      "visibleControls": 40,
+      "buttons": 15,
+      "links": 26,
+      "inputs": 5,
+      "placeholderLinks": 0,
+      "namelessButtons": 0
+    },
+    {
+      "path": "/app/roadscan",
+      "name": "Road Photo Inspection",
+      "type": "rider",
+      "totalControls": 38,
+      "visibleControls": 32,
+      "buttons": 10,
+      "links": 26,
+      "inputs": 2,
+      "placeholderLinks": 0,
+      "namelessButtons": 0
+    },
+    {
+      "path": "/app/ride",
+      "name": "Passive Ride Mode",
+      "type": "rider",
+      "totalControls": 39,
+      "visibleControls": 34,
+      "buttons": 9,
+      "links": 26,
+      "inputs": 4,
+      "placeholderLinks": 0,
+      "namelessButtons": 0
+    },
+    {
+      "path": "/app/routes",
+      "name": "Route-Aware Warnings",
+      "type": "rider",
+      "totalControls": 42,
+      "visibleControls": 37,
+      "buttons": 11,
+      "links": 30,
+      "inputs": 1,
+      "placeholderLinks": 0,
+      "namelessButtons": 0
+    },
+    {
+      "path": "/app/alerts",
+      "name": "Road Alerts History",
+      "type": "rider",
+      "totalControls": 33,
+      "visibleControls": 28,
+      "buttons": 4,
+      "links": 29,
+      "inputs": 0,
+      "placeholderLinks": 0,
+      "namelessButtons": 0
+    },
+    {
+      "path": "/app/my-reports",
+      "name": "My Submitted Reports",
+      "type": "rider",
+      "totalControls": 33,
+      "visibleControls": 28,
+      "buttons": 3,
+      "links": 30,
+      "inputs": 0,
+      "placeholderLinks": 0,
+      "namelessButtons": 0
+    },
+    {
+      "path": "/app/profile",
+      "name": "Rider Profile",
+      "type": "rider",
+      "totalControls": 33,
+      "visibleControls": 28,
+      "buttons": 7,
+      "links": 26,
+      "inputs": 0,
+      "placeholderLinks": 0,
+      "namelessButtons": 0
+    },
+    {
+      "path": "/app/settings",
+      "name": "Rider Settings",
+      "type": "rider",
+      "totalControls": 34,
+      "visibleControls": 29,
+      "buttons": 6,
+      "links": 26,
+      "inputs": 2,
+      "placeholderLinks": 0,
+      "namelessButtons": 0
+    },
+    {
+      "path": "/admin",
+      "name": "RoadSense Operations Overview",
+      "type": "authority",
+      "totalControls": 36,
+      "visibleControls": 35,
+      "buttons": 1,
+      "links": 35,
+      "inputs": 0,
+      "placeholderLinks": 0,
+      "namelessButtons": 0
+    },
+    {
+      "path": "/admin/map",
+      "name": "Operations Geographic Intelligence",
+      "type": "authority",
+      "totalControls": 35,
+      "visibleControls": 34,
+      "buttons": 1,
+      "links": 30,
+      "inputs": 4,
+      "placeholderLinks": 0,
+      "namelessButtons": 0
+    },
+    {
+      "path": "/admin/reports",
+      "name": "Operations Hazard Dispatch & Triage",
+      "type": "authority",
+      "totalControls": 47,
+      "visibleControls": 46,
+      "buttons": 1,
+      "links": 34,
+      "inputs": 12,
+      "placeholderLinks": 0,
+      "namelessButtons": 0
+    },
+    {
+      "path": "/admin/hazards/haz-hebbal-01",
+      "name": "Hazard Inspection & Work Order",
+      "type": "authority",
+      "totalControls": 36,
+      "visibleControls": 35,
+      "buttons": 2,
+      "links": 31,
+      "inputs": 3,
+      "placeholderLinks": 0,
+      "namelessButtons": 0
+    },
+    {
+      "path": "/admin/analytics",
+      "name": "Operations Analytics & CSV Export",
+      "type": "authority",
+      "totalControls": 28,
+      "visibleControls": 27,
+      "buttons": 2,
+      "links": 26,
+      "inputs": 0,
+      "placeholderLinks": 0,
+      "namelessButtons": 0
+    },
+    {
+      "path": "/admin/automation",
+      "name": "n8n Workflow Operations Console",
+      "type": "authority",
+      "totalControls": 30,
+      "visibleControls": 29,
+      "buttons": 4,
+      "links": 26,
+      "inputs": 0,
+      "placeholderLinks": 0,
+      "namelessButtons": 0
+    },
+    {
+      "path": "/admin/users",
+      "name": "Operations User Management",
+      "type": "authority",
+      "totalControls": 27,
+      "visibleControls": 26,
+      "buttons": 1,
+      "links": 26,
+      "inputs": 0,
+      "placeholderLinks": 0,
+      "namelessButtons": 0
+    },
+    {
+      "path": "/admin/settings",
+      "name": "Operations System Settings",
+      "type": "authority",
+      "totalControls": 30,
+      "visibleControls": 29,
+      "buttons": 2,
+      "links": 26,
+      "inputs": 2,
+      "placeholderLinks": 0,
+      "namelessButtons": 0
+    }
+  ]
+}

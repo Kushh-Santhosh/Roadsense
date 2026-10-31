@@ -1,0 +1,272 @@
+{
+  "auditDate": "2026-10-31T09:29:47.524Z",
+  "totalRoutes": 24,
+  "passedRoutes": 24,
+  "failedRoutes": 0,
+  "routes": [
+    {
+      "path": "/",
+      "name": "Public Landing Page",
+      "type": "public",
+      "status": "PASS",
+      "statusCode": 200,
+      "durationMs": 2990,
+      "heading": "Know the road before it surprises you.",
+      "failureReason": null,
+      "consoleErrors": []
+    },
+    {
+      "path": "/about",
+      "name": "Problem Statement & Mission",
+      "type": "public",
+      "status": "PASS",
+      "statusCode": 200,
+      "durationMs": 1962,
+      "heading": "Problem Statement & Mission",
+      "failureReason": null,
+      "consoleErrors": []
+    },
+    {
+      "path": "/how-it-works",
+      "name": "How RoadSense Works",
+      "type": "public",
+      "status": "PASS",
+      "statusCode": 200,
+      "durationMs": 2007,
+      "heading": "How RoadSense Works",
+      "failureReason": null,
+      "consoleErrors": []
+    },
+    {
+      "path": "/safety",
+      "name": "Safety & Privacy Guidelines",
+      "type": "public",
+      "status": "PASS",
+      "statusCode": 200,
+      "durationMs": 2007,
+      "heading": "Safety & Privacy Guidelines",
+      "failureReason": null,
+      "consoleErrors": []
+    },
+    {
+      "path": "/login",
+      "name": "Sign In Page",
+      "type": "public",
+      "status": "PASS",
+      "statusCode": 200,
+      "durationMs": 960,
+      "heading": "Sign In to RoadSense",
+      "failureReason": null,
+      "consoleErrors": []
+    },
+    {
+      "path": "/signup",
+      "name": "Join Rider Network",
+      "type": "public",
+      "status": "PASS",
+      "statusCode": 200,
+      "durationMs": 1047,
+      "heading": "Join the Rider Network",
+      "failureReason": null,
+      "consoleErrors": []
+    },
+    {
+      "path": "/app",
+      "name": "Rider Dashboard",
+      "type": "rider",
+      "status": "PASS",
+      "statusCode": 200,
+      "durationMs": 925,
+      "heading": "Welcome back, Kushal",
+      "failureReason": null,
+      "consoleErrors": []
+    },
+    {
+      "path": "/app/map",
+      "name": "Live Road Hazard Map",
+      "type": "rider",
+      "status": "PASS",
+      "statusCode": 200,
+      "durationMs": 964,
+      "heading": "Live Road Hazard Map",
+      "failureReason": null,
+      "consoleErrors": []
+    },
+    {
+      "path": "/app/report",
+      "name": "Report Road Hazard Form",
+      "type": "rider",
+      "status": "PASS",
+      "statusCode": 200,
+      "durationMs": 1041,
+      "heading": "Report a Road Hazard",
+      "failureReason": null,
+      "consoleErrors": []
+    },
+    {
+      "path": "/app/roadscan",
+      "name": "Road Photo Inspection",
+      "type": "rider",
+      "status": "PASS",
+      "statusCode": 200,
+      "durationMs": 1048,
+      "heading": "Road Photo Inspection",
+      "failureReason": null,
+      "consoleErrors": []
+    },
+    {
+      "path": "/app/ride",
+      "name": "Passive Ride Mode",
+      "type": "rider",
+      "status": "PASS",
+      "statusCode": 200,
+      "durationMs": 1049,
+      "heading": "Ride Mode & Impact Telemetry",
+      "failureReason": null,
+      "consoleErrors": []
+    },
+    {
+      "path": "/app/routes",
+      "name": "Route-Aware Warnings",
+      "type": "rider",
+      "status": "PASS",
+      "statusCode": 200,
+      "durationMs": 593,
+      "heading": "Route-Aware Early Warning System",
+      "failureReason": null,
+      "consoleErrors": []
+    },
+    {
+      "path": "/app/alerts",
+      "name": "Road Alerts History",
+      "type": "rider",
+      "status": "PASS",
+      "statusCode": 200,
+      "durationMs": 2005,
+      "heading": "Hazard Alert History",
+      "failureReason": null,
+      "consoleErrors": []
+    },
+    {
+      "path": "/app/my-reports",
+      "name": "My Submitted Reports",
+      "type": "rider",
+      "status": "PASS",
+      "statusCode": 200,
+      "durationMs": 593,
+      "heading": "My Submitted Reports & Verifications",
+      "failureReason": null,
+      "consoleErrors": []
+    },
+    {
+      "path": "/app/profile",
+      "name": "Rider Profile",
+      "type": "rider",
+      "status": "PASS",
+      "statusCode": 200,
+      "durationMs": 717,
+      "heading": "Kushal R. (Demo Rider)",
+      "failureReason": null,
+      "consoleErrors": []
+    },
+    {
+      "path": "/app/settings",
+      "name": "Rider Settings",
+      "type": "rider",
+      "status": "PASS",
+      "statusCode": 200,
+      "durationMs": 1045,
+      "heading": "Application Settings",
+      "failureReason": null,
+      "consoleErrors": []
+    },
+    {
+      "path": "/admin",
+      "name": "RoadSense Operations Overview",
+      "type": "authority",
+      "status": "PASS",
+      "statusCode": 200,
+      "durationMs": 574,
+      "heading": "RoadSense Operations",
+      "failureReason": null,
+      "consoleErrors": []
+    },
+    {
+      "path": "/admin/map",
+      "name": "Operations Geographic Intelligence",
+      "type": "authority",
+      "status": "PASS",
+      "statusCode": 200,
+      "durationMs": 713,
+      "heading": "Geographic Intelligence & Municipal Road Heatmap",
+      "failureReason": null,
+      "consoleErrors": []
+    },
+    {
+      "path": "/admin/reports",
+      "name": "Operations Hazard Dispatch & Triage",
+      "type": "authority",
+      "status": "PASS",
+      "statusCode": 200,
+      "durationMs": 564,
+      "heading": "Hazard Verification & Dispatch Queue",
+      "failureReason": null,
+      "consoleErrors": []
+    },
+    {
+      "path": "/admin/hazards/haz-hebbal-01",
+      "name": "Hazard Inspection & Work Order",
+      "type": "authority",
+      "status": "PASS",
+      "statusCode": 200,
+      "durationMs": 632,
+      "heading": "Severe Pothole Cluster on Outer Ring Road",
+      "failureReason": null,
+      "consoleErrors": []
+    },
+    {
+      "path": "/admin/analytics",
+      "name": "Operations Analytics & CSV Export",
+      "type": "authority",
+      "status": "PASS",
+      "statusCode": 200,
+      "durationMs": 729,
+      "heading": "Road Hazard Intelligence & Analytics",
+      "failureReason": null,
+      "consoleErrors": []
+    },
+    {
+      "path": "/admin/automation",
+      "name": "n8n Workflow Operations Console",
+      "type": "authority",
+      "status": "PASS",
+      "statusCode": 200,
+      "durationMs": 1822,
+      "heading": "Automated Incident Triage & Freshness Cron",
+      "failureReason": null,
+      "consoleErrors": []
+    },
+    {
+      "path": "/admin/users",
+      "name": "Operations User Management",
+      "type": "authority",
+      "status": "PASS",
+      "statusCode": 200,
+      "durationMs": 616,
+      "heading": "User Roles & Contributor Roster",
+      "failureReason": null,
+      "consoleErrors": []
+    },
+    {
+      "path": "/admin/settings",
+      "name": "Operations System Settings",
+      "type": "authority",
+      "status": "PASS",
+      "statusCode": 200,
+      "durationMs": 1061,
+      "heading": "Authority System Settings",
+      "failureReason": null,
+      "consoleErrors": []
+    }
+  ]
+}

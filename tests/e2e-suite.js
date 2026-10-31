@@ -1,10 +1,12 @@
-import puppeteer from '../node_modules/puppeteer-core/lib/puppeteer/puppeteer-core.js';
 import fs from 'fs';
 import path from 'path';
-
-const CHROME_PATH = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
-const BASE_URL = 'http://localhost:5173';
-const ARTIFACT_DIR = '/Users/kushal/.gemini/antigravity/brain/3350b204-fa19-4599-b1f2-ff6cacede9de/screenshots';
+import {
+  BASE_URL,
+  ARTIFACT_DIR,
+  ensureDevServer,
+  stopSpawnedDevServer,
+  launchTestBrowser
+} from './helpers/browser.js';
 
 // Ensure screenshot directory exists
 if (!fs.existsSync(ARTIFACT_DIR)) {
@@ -17,11 +19,8 @@ async function runE2ESuite() {
   console.log('DOM Inspection • Control Walkthrough • Multi-Viewport');
   console.log('====================================================\n');
 
-  const browser = await puppeteer.launch({
-    executablePath: CHROME_PATH,
-    headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
-  });
+  await ensureDevServer(BASE_URL);
+  const browser = await launchTestBrowser();
 
   const page = await browser.newPage();
   const consoleErrors = [];
@@ -156,7 +155,9 @@ async function runE2ESuite() {
     process.exit(1);
   } finally {
     await browser.close();
+    stopSpawnedDevServer();
   }
 }
 
 runE2ESuite();
+
