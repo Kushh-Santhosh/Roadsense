@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
+import { ToastProvider } from './components/Toast';
 import { StorageService } from './services/storageService';
 
 // Public Pages
@@ -56,12 +57,13 @@ export function App() {
 
   return (
     <BrowserRouter>
-      <ScrollToTop />
-      <div className="flex flex-col min-h-screen bg-brand-warm-white text-brand-navy">
-        <Navbar currentRole={currentRole} onRoleChange={(r) => setCurrentRole(r)} />
+      <ToastProvider>
+        <ScrollToTop />
+        <div className="flex flex-col min-h-screen bg-brand-warm-white text-brand-navy">
+          <Navbar currentRole={currentRole} onRoleChange={(r) => setCurrentRole(r)} />
 
-        <main className="flex-1">
-          <Routes>
+          <main className="flex-1 pb-16 md:pb-0">
+            <Routes>
             {/* Public Routes */}
             <Route path="/" element={<LandingPage />} />
             <Route path="/about" element={<AboutPage />} />
@@ -98,7 +100,8 @@ export function App() {
         </main>
 
         <Footer />
-      </div>
+        </div>
+      </ToastProvider>
     </BrowserRouter>
   );
 }

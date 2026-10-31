@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" width="100%" height="100%">
+  <defs>
+    <!-- Dark Asphalt Road Texture Pattern -->
+    <radialGradient id="craterShadow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#0a0e14" />
+      <stop offset="65%" stop-color="#141c24" />
+      <stop offset="90%" stop-color="#2a3542" />
+      <stop offset="100%" stop-color="#424e5d" />
+    </radialGradient>
+    <linearGradient id="roadSurface" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3b444f" />
+      <stop offset="50%" stop-color="#2f3742" />
+      <stop offset="100%" stop-color="#252c36" />
+    </linearGradient>
+    <filter id="noiseFilter">
+      <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch" />
+      <feColorMatrix type="matrix" values="0 0 0 0 0.2  0 0 0 0 0.25  0 0 0 0 0.3  0 0 0 0.15 0"/>
+      <feComposite in2="SourceGraphic" in="gl" operator="in" />
+    </filter>
+  </defs>
+
+  <!-- Asphalt Road Base -->
+  <rect width="600" height="400" fill="url(#roadSurface)" />
+
+  <!-- Road Texture Granules -->
+  <g opacity="0.25">
+    <circle cx="80" cy="90" r="1.5" fill="#ffffff"/>
+    <circle cx="140" cy="60" r="2" fill="#8892b0"/>
+    <circle cx="220" cy="110" r="1" fill="#cbd5e1"/>
+    <circle cx="380" cy="70" r="2.5" fill="#94a3b8"/>
+    <circle cx="510" cy="130" r="1.5" fill="#ffffff"/>
+    <circle cx="90" cy="280" r="2" fill="#64748b"/>
+    <circle cx="160" cy="330" r="1" fill="#cbd5e1"/>
+    <circle cx="480" cy="310" r="2" fill="#ffffff"/>
+    <circle cx="530" cy="270" r="1.5" fill="#94a3b8"/>
+  </g>
+
+  <!-- Lane Marking Yellow Dash (Faded) -->
+  <rect x="20" y="190" width="80" height="14" fill="#eab308" opacity="0.6" rx="2" />
+  <rect x="500" y="190" width="80" height="14" fill="#eab308" opacity="0.6" rx="2" />
+
+  <!-- Outer Fractured Rim of Pothole (D40) -->
+  <path d="M210 130 C250 115, 340 120, 390 145 C430 165, 440 210, 420 250 C400 290, 330 305, 270 295 C220 285, 180 250, 185 200 C188 165, 195 140, 210 130 Z" fill="#202731" stroke="#10161f" stroke-width="4" />
+
+  <!-- Deep Cavity Depth (Shadow Gradient) -->
+  <path d="M230 145 C270 135, 330 138, 375 160 C410 178, 415 215, 395 245 C375 275, 315 285, 265 275 C225 265, 205 235, 210 195 C213 165, 220 150, 230 145 Z" fill="url(#craterShadow)" />
+
+  <!-- Fractured Edge Aggregate and Cracks radiating outwards -->
+  <path d="M210 130 L160 100 M390 145 L450 120 M420 250 L470 290 M270 295 L250 350 M185 200 L120 220" stroke="#151b22" stroke-width="3" stroke-linecap="round" />
+  <path d="M250 115 L260 80 M340 120 L360 85 M400 290 L425 330 M180 250 L140 280" stroke="#1e2630" stroke-width="2" stroke-linecap="round" />
+
+  <!-- Submerged cavity pebbles inside pothole -->
+  <ellipse cx="300" cy="220" rx="45" ry="25" fill="#05070a" />
+  <circle cx="280" cy="210" r="4" fill="#475569" />
+  <circle cx="310" cy="225" r="5" fill="#334155" />
+  <circle cx="330" cy="215" r="3.5" fill="#64748b" />
+  <circle cx="265" cy="230" r="4" fill="#1e293b" />
+
+  <!-- Water sheen / moisture highlight -->
+  <path d="M270 205 C290 200, 320 202, 335 210 C315 215, 285 214, 270 205 Z" fill="#38bdf8" opacity="0.35" />
+
+  <!-- Class Identification Badge -->
+  <rect x="20" y="20" width="160" height="32" rx="8" fill="#142536" opacity="0.9" />
+  <text x="32" y="41" fill="#f28c28" font-family="sans-serif" font-size="13" font-weight="bold">RDD2022 • D40 POTHOLE</text>
+</svg>

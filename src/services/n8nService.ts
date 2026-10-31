@@ -165,3 +165,4 @@ export const N8NService = {
     this.saveExecutions(list);
   }
 };
+

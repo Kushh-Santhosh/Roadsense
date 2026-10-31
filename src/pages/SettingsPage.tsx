@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { StorageService } from '../services/storageService';
 import { SensorService } from '../services/sensorService';
+import { ConfirmModal } from '../components/ConfirmModal';
+import { useToast } from '../components/Toast';
 import {
   Settings,
   Sliders,
@@ -17,16 +19,17 @@ export const SettingsPage: React.FC = () => {
   const [voiceAlerts, setVoiceAlerts] = useState(true);
   const [corridorAlertDistance, setCorridorAlertDistance] = useState(100);
   const [savedMsg, setSavedMsg] = useState(false);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const { showToast } = useToast();
 
   const handleResetData = () => {
-    if (window.confirm('Are you sure you want to reset all records back to default Bengaluru demonstration state?')) {
-      StorageService.resetToDemo();
-      window.location.reload();
-    }
+    StorageService.resetToDemo();
+    window.location.reload();
   };
 
   const handleSave = () => {
     setSavedMsg(true);
+    showToast('Preferences updated successfully.', 'success');
     setTimeout(() => setSavedMsg(false), 2500);
   };
 
@@ -115,9 +118,9 @@ export const SettingsPage: React.FC = () => {
               <button
                 onClick={() => {
                   SensorService.stopRide();
-                  alert('All active geolocation watches and sensors stopped.');
+                  showToast('Active geolocation watches and sensor telemetry terminated.', 'info');
                 }}
-                className="mt-1 px-3 py-1.5 rounded-xl border border-brand-neutral-grey text-brand-navy font-semibold hover:bg-slate-100"
+                className="mt-1 px-3 py-1.5 rounded-xl border border-brand-neutral-grey text-brand-navy font-semibold hover:bg-slate-100 cursor-pointer"
               >
                 Terminate Active GPS Watch
               </button>
@@ -138,7 +141,7 @@ export const SettingsPage: React.FC = () => {
               If test reports or status transitions need to be reset back to the initial Bengaluru demonstration incidents, click below:
             </p>
             <button
-              onClick={handleResetData}
+              onClick={() => setShowResetConfirm(true)}
               className="px-4 py-2 rounded-xl bg-brand-navy text-white font-bold hover:bg-brand-navy-light transition-all cursor-pointer flex items-center gap-1.5"
             >
               <RefreshCw className="w-3.5 h-3.5" />
@@ -156,6 +159,17 @@ export const SettingsPage: React.FC = () => {
           </button>
         </div>
       </div>
+
+      <ConfirmModal
+        isOpen={showResetConfirm}
+        onClose={() => setShowResetConfirm(false)}
+        onConfirm={handleResetData}
+        title="Reset Bengaluru Demonstration Dataset?"
+        description="Are you sure you want to restore all default Bengaluru hazard incidents? Custom test reports and mock sessions will be cleared."
+        confirmText="Reset State"
+        cancelText="Cancel"
+        variant="warning"
+      />
     </div>
   );
 };

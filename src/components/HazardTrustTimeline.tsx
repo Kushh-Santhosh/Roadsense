@@ -172,3 +172,4 @@ export const HazardTrustTimeline: React.FC<HazardTrustTimelineProps> = ({ hazard
     </div>
   );
 };
+

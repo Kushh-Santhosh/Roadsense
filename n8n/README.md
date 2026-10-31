@@ -73,3 +73,4 @@ curl -X POST "https://<your-n8n-instance>.app.n8n.cloud/webhook/roadsense-hazard
   "processingStatus": "PROCESSED_WATERLOG_FLAGGED"
 }
 ```
+

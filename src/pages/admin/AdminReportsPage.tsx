@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { StorageService } from '../../services/storageService';
 import { Hazard, VerificationStatus, CanonicalVerificationStatus } from '../../types';
 import { StatusBadge, CanonicalStatusBadge, SeverityBadge, CategoryLabel, WaterlogHazardWarningPill } from '../../components/HazardBadge';
+import { ConfirmModal } from '../../components/ConfirmModal';
+import { useToast } from '../../components/Toast';
 import { Link } from 'react-router-dom';
 import {
   Layers,
@@ -25,6 +27,8 @@ export const AdminReportsPage: React.FC = () => {
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [actionNotice, setActionNotice] = useState<string | null>(null);
+  const [showMergeModal, setShowMergeModal] = useState(false);
+  const { showToast } = useToast();
 
   const loadData = () => {
     setHazards(StorageService.getHazards());
@@ -74,19 +78,22 @@ export const AdminReportsPage: React.FC = () => {
   };
 
   // Duplicate merger action
-  const handleMergeDuplicates = () => {
+  const handleOpenMergeConfirm = () => {
     if (selectedIds.length < 2) {
-      alert('Please select at least 2 reports to merge.');
+      showToast('Please select at least 2 reports from the table to merge.', 'warning');
       return;
     }
+    setShowMergeModal(true);
+  };
+
+  const executeMergeDuplicates = () => {
     const primaryId = selectedIds[0];
     const duplicateIds = selectedIds.slice(1);
 
     StorageService.mergeHazards(primaryId, duplicateIds);
     setSelectedIds([]);
     loadData();
-    setActionNotice(`Successfully clustered ${duplicateIds.length} duplicate reports into primary hazard ${primaryId}`);
-    setTimeout(() => setActionNotice(null), 4000);
+    showToast(`Successfully merged ${duplicateIds.length} duplicate reports into primary hazard ${primaryId}`, 'success');
   };
 
   // Quick status change
@@ -117,7 +124,7 @@ export const AdminReportsPage: React.FC = () => {
 
           {selectedIds.length >= 2 && (
             <button
-              onClick={handleMergeDuplicates}
+              onClick={handleOpenMergeConfirm}
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-purple-700 hover:bg-purple-800 text-white font-bold text-xs shadow-md shadow-purple-700/20 transition-all cursor-pointer animate-fadeIn"
             >
               <GitMerge className="w-4 h-4" />
@@ -306,6 +313,18 @@ export const AdminReportsPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Duplicate Merging Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showMergeModal}
+        onClose={() => setShowMergeModal(false)}
+        onConfirm={executeMergeDuplicates}
+        title="Merge Selected Citizen Distress Reports?"
+        description={`This will cluster ${selectedIds.length - 1} nearby duplicate reports into primary incident #${selectedIds[0]}, combining their corroborations and updating the municipal queue.`}
+        confirmText="Merge Reports"
+        cancelText="Cancel"
+        variant="warning"
+      />
     </div>
   );
 };

@@ -41,14 +41,18 @@ export const AdminUsersPage: React.FC = () => {
                   <tr key={user.id} className="hover:bg-brand-soft-blue/20 transition-colors">
                     <td className="p-4">
                       <div className="flex items-center gap-3">
-                        <img
-                          src={user.avatar}
-                          alt={user.name}
-                          className="w-10 h-10 rounded-xl object-cover ring-2 ring-slate-200"
-                        />
+                        <div className="w-9 h-9 rounded-xl bg-brand-navy text-white text-xs font-bold flex items-center justify-center flex-shrink-0 shadow-subtle border border-brand-neutral-grey">
+                          {user.name
+                            .split(' ')
+                            .map((n) => n[0])
+                            .filter(Boolean)
+                            .slice(0, 2)
+                            .join('')
+                            .toUpperCase()}
+                        </div>
                         <div>
                           <div className="font-bold text-sm text-brand-navy">{user.name}</div>
-                          <div className="text-[11px] text-brand-slate">{user.email}</div>
+                          <div className="text-[11px] text-brand-slate font-mono">{user.email}</div>
                         </div>
                       </div>
                     </td>

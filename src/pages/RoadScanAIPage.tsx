@@ -89,15 +89,15 @@ export const RoadScanAIPage: React.FC = () => {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-purple-700 mb-1">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-purple-700 mb-1">
               <Sparkles className="w-4 h-4 text-purple-600" />
-              Computer Vision Road Damage Analysis
+              Computer Vision Feature Extraction • RDD2022 Aligned
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-brand-navy tracking-tight">
               RoadScan AI Inspector
             </h1>
-            <p className="text-sm text-brand-slate mt-1 max-w-2xl">
-              Trained on standard international RDD2022 road damage datasets to identify potholes (D40), alligator cracks (D20), longitudinal cracks (D00), and transverse cracks (D10).
+            <p className="text-xs sm:text-sm text-brand-slate mt-1 max-w-2xl leading-relaxed">
+              Demonstration road distress feature extractor aligned with the international RDD2022 taxonomy to classify potholes (D40), fatigue alligator cracks (D20), longitudinal fissures (D00), and transverse cracks (D10). Human confirmation required before filing.
             </p>
           </div>
 
@@ -132,10 +132,10 @@ export const RoadScanAIPage: React.FC = () => {
         <div className="bg-white rounded-3xl p-5 border border-brand-neutral-grey shadow-subtle">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-bold text-brand-navy uppercase tracking-wider">
-              RDD2022 Dataset Benchmark Samples (Click to test instantly)
+              RDD2022 Benchmark Samples (Genuine Distress Morphology)
             </span>
-            <span className="text-[11px] text-brand-slate">
-              Sekilab & Wangbiao RDD benchmark classes
+            <span className="text-[11px] text-brand-slate font-medium">
+              Demonstration classification testbed
             </span>
           </div>
 

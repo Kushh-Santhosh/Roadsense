@@ -30,11 +30,15 @@ export const ProfilePage: React.FC = () => {
         {/* Profile Header Card */}
         <div className="bg-white rounded-3xl p-6 sm:p-8 border border-brand-neutral-grey shadow-card space-y-6">
           <div className="flex flex-col sm:flex-row items-center gap-5 text-center sm:text-left">
-            <img
-              src={currentUser.avatar}
-              alt={currentUser.name}
-              className="w-24 h-24 rounded-3xl object-cover ring-4 ring-brand-orange/30 shadow-elevated"
-            />
+            <div className="w-20 h-20 rounded-3xl bg-brand-navy text-white text-2xl font-black flex items-center justify-center border-4 border-brand-orange/40 shadow-elevated flex-shrink-0">
+              {currentUser.name
+                .split(' ')
+                .map((n) => n[0])
+                .filter(Boolean)
+                .slice(0, 2)
+                .join('')
+                .toUpperCase()}
+            </div>
             <div className="space-y-1">
               <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-brand-orange/15 text-brand-orange text-xs font-bold uppercase tracking-wider">
                 <Shield className="w-3.5 h-3.5" />
@@ -100,11 +104,15 @@ export const ProfilePage: React.FC = () => {
                       : 'border-brand-neutral-grey hover:border-slate-300 bg-white'
                   }`}
                 >
-                  <img
-                    src={user.avatar}
-                    alt={user.name}
-                    className="w-10 h-10 rounded-xl object-cover ring-2 ring-slate-200"
-                  />
+                  <div className="w-10 h-10 rounded-xl bg-brand-navy text-white text-xs font-bold flex items-center justify-center flex-shrink-0 shadow-subtle border border-brand-neutral-grey">
+                    {user.name
+                      .split(' ')
+                      .map((n) => n[0])
+                      .filter(Boolean)
+                      .slice(0, 2)
+                      .join('')
+                      .toUpperCase()}
+                  </div>
                   <div className="flex-1 min-w-0">
                     <div className="text-xs font-bold text-brand-navy truncate">{user.name}</div>
                     <div className="text-[11px] text-brand-slate truncate capitalize">

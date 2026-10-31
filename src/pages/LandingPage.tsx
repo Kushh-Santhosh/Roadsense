@@ -100,7 +100,7 @@ export const LandingPage: React.FC = () => {
                 Open Fullscreen <ChevronRight className="w-3.5 h-3.5" />
               </Link>
             </div>
-            <div className="h-80 sm:h-96 w-full">
+            <div className="h-80 sm:h-[440px] w-full flex flex-col">
               <LeafletMap
                 hazards={hazards}
                 center={[12.9719, 77.6412]}

@@ -86,12 +86,9 @@ export const Logo: React.FC<LogoProps> = ({
             <span className={`font-extrabold tracking-tight ${textSizes[size]} ${isDark ? 'text-white' : 'text-brand-navy'}`}>
               Road<span className="text-brand-orange">Sense</span>
             </span>
-            <span className="ml-1.5 px-1.5 py-0.5 text-[10px] font-bold tracking-wider uppercase rounded bg-brand-orange/15 text-brand-orange border border-brand-orange/30">
-              AI
-            </span>
           </div>
           {size !== 'sm' && (
-            <span className={`text-[10px] tracking-wide mt-0.5 font-medium ${isDark ? 'text-brand-slate-light' : 'text-brand-slate'}`}>
+            <span className={`text-[10px] tracking-wide mt-1 font-semibold uppercase text-brand-slate ${isDark ? 'text-brand-slate-light' : 'text-brand-slate'}`}>
               Road Safety Intelligence
             </span>
           )}

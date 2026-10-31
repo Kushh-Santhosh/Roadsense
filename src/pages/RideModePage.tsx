@@ -3,6 +3,7 @@ import { SensorService, SensorTelemetry, ProximityAlert, DEFAULT_SENSOR_CONFIG }
 import { StorageService } from '../services/storageService';
 import { SensorImpactEvent, Hazard } from '../types';
 import { SeverityBadge, StatusBadge, CategoryLabel, WaterlogHazardWarningPill } from '../components/HazardBadge';
+import { useToast } from '../components/Toast';
 import { useNavigate } from 'react-router-dom';
 import {
   Activity,
@@ -31,6 +32,7 @@ import {
 
 export const RideModePage: React.FC = () => {
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   // State
   const [isRideActive, setIsRideActive] = useState(false);
@@ -146,7 +148,7 @@ export const RideModePage: React.FC = () => {
 
   const handleCalibrate = () => {
     SensorService.calibrate();
-    alert('Accelerometer calibrated to current phone orientation (baseline vertical axis zeroed).');
+    showToast('Accelerometer calibrated to current phone orientation (baseline vertical axis zeroed).', 'success');
   };
 
   const handleConvertCandidateToReport = (event: SensorImpactEvent) => {

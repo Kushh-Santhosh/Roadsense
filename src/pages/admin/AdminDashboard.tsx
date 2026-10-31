@@ -111,9 +111,9 @@ export const AdminDashboard: React.FC = () => {
           </div>
 
           <div className="bg-white p-4 rounded-2xl border border-brand-neutral-grey shadow-subtle">
-            <span className="text-[11px] font-bold text-blue-700 uppercase tracking-wider">Avg Verify Time</span>
+            <span className="text-[11px] font-bold text-blue-700 uppercase tracking-wider">Demo SLA Target</span>
             <div className="text-2xl font-black text-blue-700 mt-1">2.4 <span className="text-xs font-normal">hrs</span></div>
-            <div className="text-[10px] text-brand-slate-light">Rider consensus speed</div>
+            <div className="text-[10px] text-brand-slate-light">Simulated consensus latency</div>
           </div>
         </div>
 

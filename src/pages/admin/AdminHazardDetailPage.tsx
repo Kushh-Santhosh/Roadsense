@@ -209,7 +209,7 @@ export const AdminHazardDetailPage: React.FC = () => {
             <h3 className="text-sm font-bold text-brand-navy uppercase tracking-wider">
               Geospatial Coordinates
             </h3>
-            <div className="h-64 rounded-2xl overflow-hidden border border-brand-neutral-grey">
+            <div className="h-64 rounded-2xl overflow-hidden border border-brand-neutral-grey flex flex-col">
               <LeafletMap
                 hazards={[hazard]}
                 center={[hazard.latitude, hazard.longitude]}

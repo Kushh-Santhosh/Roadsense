@@ -35,7 +35,7 @@ export const BENCHMARK_SAMPLE_IMAGES: SampleRoadImage[] = [
     id: 'sample-pothole',
     title: 'High-Risk Crater Pothole (D40)',
     description: 'Deep structural depression with broken aggregate and dark shadow cavity.',
-    url: 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&w=800&q=80',
+    url: '/samples/pothole-d40.svg',
     expectedClass: 'Pothole (D40)',
     rddCode: 'D40'
   },
@@ -43,7 +43,7 @@ export const BENCHMARK_SAMPLE_IMAGES: SampleRoadImage[] = [
     id: 'sample-alligator',
     title: 'Fatigue Alligator Cracking (D20)',
     description: 'Interconnected polygon fracture network from heavy wheel axle fatigue.',
-    url: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=800&q=80',
+    url: '/samples/alligator-d20.svg',
     expectedClass: 'Alligator Cracks (D20)',
     rddCode: 'D20'
   },
@@ -51,7 +51,7 @@ export const BENCHMARK_SAMPLE_IMAGES: SampleRoadImage[] = [
     id: 'sample-longitudinal',
     title: 'Longitudinal Wheelpath Crack (D00)',
     description: 'Continuous linear fissure running parallel to the direction of vehicular travel.',
-    url: 'https://images.unsplash.com/photo-1508873696983-2df5293cb395?auto=format&fit=crop&w=800&q=80',
+    url: '/samples/longitudinal-d00.svg',
     expectedClass: 'Longitudinal Crack (D00)',
     rddCode: 'D00'
   },
@@ -59,7 +59,7 @@ export const BENCHMARK_SAMPLE_IMAGES: SampleRoadImage[] = [
     id: 'sample-transverse',
     title: 'Transverse Thermal Crack (D10)',
     description: 'Perpendicular fracture across carriageway caused by thermal contraction.',
-    url: 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=800&q=80',
+    url: '/samples/transverse-d10.svg',
     expectedClass: 'Transverse Crack (D10)',
     rddCode: 'D10'
   }

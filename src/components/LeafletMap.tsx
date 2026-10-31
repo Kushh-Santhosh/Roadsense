@@ -1,8 +1,10 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap, Circle, Polyline } from 'react-leaflet';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, useMap, Circle, Polyline, ZoomControl } from 'react-leaflet';
 import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 import { Hazard, HazardSeverity, HazardCategory } from '../types';
 import { SeverityBadge, StatusBadge, CanonicalStatusBadge, CategoryLabel, WaterlogHazardWarningPill } from './HazardBadge';
+import { getActiveTileProvider, MAP_CONFIG, TileProvider } from '../config/mapConfig';
 import {
   Navigation,
   Crosshair,
@@ -16,7 +18,9 @@ import {
   Filter,
   Users,
   Camera,
-  Activity
+  Activity,
+  RefreshCw,
+  AlertTriangle
 } from 'lucide-react';
 
 interface LeafletMapProps {
@@ -29,6 +33,7 @@ interface LeafletMapProps {
   showFilters?: boolean;
   routePolyline?: [number, number][];
   onUserLocationFound?: (lat: number, lng: number) => void;
+  className?: string;
 }
 
 // Custom Leaflet Markers for different hazard severities
@@ -41,13 +46,13 @@ function createHazardIcon(severity: HazardSeverity, isSelected = false) {
   };
 
   const c = colors[severity] || colors.high;
-  const size = isSelected ? 36 : 28;
+  const size = isSelected ? 34 : 26;
 
   const html = `
     <div style="position: relative; width: ${size}px; height: ${size}px; display: flex; align-items: center; justify-content: center;">
       ${
         severity === 'critical'
-          ? `<div style="position: absolute; width: ${size + 14}px; height: ${size + 14}px; border-radius: 50%; background-color: ${c.pulse}; opacity: 0.35; animation: ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;"></div>`
+          ? `<div style="position: absolute; width: ${size + 12}px; height: ${size + 12}px; border-radius: 50%; background-color: ${c.pulse}; opacity: 0.35; animation: ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;"></div>`
           : ''
       }
       <div style="
@@ -55,8 +60,8 @@ function createHazardIcon(severity: HazardSeverity, isSelected = false) {
         height: ${size}px;
         border-radius: 50%;
         background-color: ${c.bg};
-        border: 2.5px solid ${c.border};
-        box-shadow: 0 3px 8px rgba(20, 37, 54, 0.35);
+        border: 2px solid ${c.border};
+        box-shadow: 0 2px 6px rgba(20, 37, 54, 0.4);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -85,17 +90,57 @@ function createHazardIcon(severity: HazardSeverity, isSelected = false) {
 
 function createUserIcon() {
   const html = `
-    <div style="position: relative; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">
-      <div style="position: absolute; width: 34px; height: 34px; border-radius: 50%; background-color: #2563EB; opacity: 0.25; animation: ping 2s cubic-bezier(0,0,0.2,1) infinite;"></div>
-      <div style="width: 18px; height: 18px; border-radius: 50%; background-color: #2563EB; border: 3px solid #FFFFFF; box-shadow: 0 2px 6px rgba(0,0,0,0.4);"></div>
+    <div style="position: relative; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center;">
+      <div style="position: absolute; width: 32px; height: 32px; border-radius: 50%; background-color: #2563EB; opacity: 0.3; animation: ping 2s cubic-bezier(0,0,0.2,1) infinite;"></div>
+      <div style="width: 16px; height: 16px; border-radius: 50%; background-color: #2563EB; border: 2.5px solid #FFFFFF; box-shadow: 0 2px 6px rgba(0,0,0,0.45);"></div>
     </div>
   `;
   return L.divIcon({
     html,
     className: 'custom-user-marker',
-    iconSize: [24, 24],
-    iconAnchor: [12, 12]
+    iconSize: [22, 22],
+    iconAnchor: [11, 11]
   });
+}
+
+// Resizer component: listens to DOM layout changes and forces Leaflet to recalculate tile bounds
+function MapResizer() {
+  const map = useMap();
+
+  useEffect(() => {
+    // Invalidate immediately
+    map.invalidateSize();
+
+    // Trigger progressive invalidations to handle CSS flex and page transitions
+    const t1 = setTimeout(() => map.invalidateSize(), 80);
+    const t2 = setTimeout(() => map.invalidateSize(), 300);
+    const t3 = setTimeout(() => map.invalidateSize(), 800);
+
+    const container = map.getContainer();
+    let observer: ResizeObserver | null = null;
+
+    if (container && typeof ResizeObserver !== 'undefined') {
+      observer = new ResizeObserver(() => {
+        map.invalidateSize();
+      });
+      observer.observe(container);
+    }
+
+    const handleWindowResize = () => {
+      map.invalidateSize();
+    };
+    window.addEventListener('resize', handleWindowResize);
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+      if (observer) observer.disconnect();
+      window.removeEventListener('resize', handleWindowResize);
+    };
+  }, [map]);
+
+  return null;
 }
 
 // Controller to fly to center or selected hazard
@@ -123,12 +168,13 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
   hazards,
   selectedHazard,
   onSelectHazard,
-  center = [12.9719, 77.6412], // Default Bengaluru center (Indiranagar / MG Rd)
-  zoom = 13,
-  height = '540px',
+  center = MAP_CONFIG.defaultCenter,
+  zoom = MAP_CONFIG.defaultZoom,
+  height,
   showFilters = true,
   routePolyline,
-  onUserLocationFound
+  onUserLocationFound,
+  className = ''
 }) => {
   const [filterSeverity, setFilterSeverity] = useState<string>('all');
   const [filterCategory, setFilterCategory] = useState<string>('all');
@@ -136,12 +182,22 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [locationStatus, setLocationStatus] = useState<string>('');
   const [isLocating, setIsLocating] = useState(false);
+  const [tileErrorCount, setTileErrorCount] = useState(0);
+  const [activeProvider, setActiveProvider] = useState<TileProvider>(getActiveTileProvider());
   const mapRef = useRef<L.Map | null>(null);
 
   // Filter hazards
   const filteredHazards = hazards.filter((h) => {
     if (filterSeverity !== 'all' && h.severity !== filterSeverity) return false;
-    if (filterCategory !== 'all' && h.category !== filterCategory) return false;
+    if (filterCategory !== 'all') {
+      if (filterCategory === 'waterlogged_road') {
+        if (h.category !== 'waterlogged_road' && h.additionalLabel !== 'POTENTIALLY_HIDDEN_SURFACE_HAZARD') {
+          return false;
+        }
+      } else if (h.category !== filterCategory) {
+        return false;
+      }
+    }
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       return (
@@ -182,29 +238,45 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
     );
   };
 
+  const handleSwitchToFallbackTiles = () => {
+    setActiveProvider(MAP_CONFIG.providers.cartoVoyager);
+    setTileErrorCount(0);
+    if (mapRef.current) {
+      mapRef.current.invalidateSize();
+    }
+  };
+
+  // Determine explicit height styling vs flex expansion
+  const isExplicitHeight = Boolean(height && height !== '100%');
+
   return (
-    <div className="relative rounded-2xl overflow-hidden border border-brand-neutral-grey/90 shadow-card bg-slate-100 flex flex-col font-sans">
+    <div
+      className={`relative rounded-2xl overflow-hidden border border-brand-neutral-grey/90 shadow-card bg-slate-100 flex flex-col font-sans w-full ${
+        isExplicitHeight ? '' : 'h-full flex-1 min-h-[300px]'
+      } ${className}`}
+      style={isExplicitHeight ? { height } : undefined}
+    >
       {/* Top Filter Bar */}
       {showFilters && (
-        <div className="bg-white/95 backdrop-blur-md p-3 border-b border-brand-neutral-grey/80 z-20 flex flex-wrap items-center justify-between gap-2.5">
+        <div className="bg-white/95 backdrop-blur-md p-2.5 sm:p-3 border-b border-brand-neutral-grey/80 z-20 flex flex-wrap items-center justify-between gap-2 flex-shrink-0">
           {/* Search Input */}
-          <div className="relative flex-1 min-w-[200px] max-w-sm">
-            <Search className="w-4 h-4 text-brand-slate absolute left-3 top-1/2 -translate-y-1/2" />
+          <div className="relative flex-1 min-w-[180px] max-w-sm">
+            <Search className="w-3.5 h-3.5 text-brand-slate absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="Search Bengaluru locality (Hebbal, Indiranagar, Whitefield...)"
+              placeholder="Search Bengaluru locality (Hebbal, Indiranagar...)"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-brand-neutral-grey bg-brand-warm-white focus:outline-none focus:ring-2 focus:ring-brand-orange/40 text-brand-navy"
+              className="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-brand-neutral-grey bg-brand-warm-white focus:outline-none focus:ring-2 focus:ring-brand-orange/40 text-brand-navy"
             />
           </div>
 
-          <div className="flex items-center gap-2 flex-wrap text-xs">
+          <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap text-xs">
             {/* Severity Filter */}
             <select
               value={filterSeverity}
               onChange={(e) => setFilterSeverity(e.target.value)}
-              className="py-1.5 px-2.5 rounded-lg border border-brand-neutral-grey bg-white text-brand-navy font-medium focus:outline-none focus:ring-2 focus:ring-brand-orange/40"
+              className="py-1 px-2 text-xs rounded-lg border border-brand-neutral-grey bg-white text-brand-navy font-medium focus:outline-none focus:ring-2 focus:ring-brand-orange/40"
             >
               <option value="all">All Severities</option>
               <option value="critical">🔴 Critical Hazard</option>
@@ -217,31 +289,28 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
             <select
               value={filterCategory}
               onChange={(e) => setFilterCategory(e.target.value)}
-              className="py-1.5 px-2.5 rounded-lg border border-brand-neutral-grey bg-white text-brand-navy font-medium focus:outline-none focus:ring-2 focus:ring-brand-orange/40"
+              className="py-1 px-2 text-xs rounded-lg border border-brand-neutral-grey bg-white text-brand-navy font-medium focus:outline-none focus:ring-2 focus:ring-brand-orange/40"
             >
               <option value="all">All Categories</option>
               <option value="waterlogged_road">🌊 Waterlogged Road</option>
-              <option value="potentially_hidden_surface_hazard">⚠️ Hidden Surface Risk</option>
               <option value="pothole">🕳️ Potholes</option>
               <option value="road_cracks">Road Cracks</option>
               <option value="uneven_surface">Uneven Surface</option>
               <option value="damaged_manhole">Damaged Manhole</option>
               <option value="open_drain">Open Drain / Culvert</option>
-              <option value="debris">Loose Gravel / Debris</option>
               <option value="road_construction">Construction Zone</option>
-              <option value="damaged_edge">Damaged Shoulder / Edge</option>
-              <option value="other_hazard">Other Hazard</option>
+              <option value="damaged_edge">Damaged Shoulder</option>
             </select>
 
             {/* Locate Me Button */}
             <button
               onClick={handleLocateMe}
               disabled={isLocating}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand-navy hover:bg-brand-navy-light text-white font-semibold transition-all shadow-subtle cursor-pointer disabled:opacity-50"
+              className="flex items-center gap-1 px-2.5 py-1 text-xs rounded-lg bg-brand-navy hover:bg-brand-navy-light text-white font-semibold transition-all shadow-subtle cursor-pointer disabled:opacity-50"
               title="Show my current GPS position"
             >
               <Crosshair className={`w-3.5 h-3.5 text-brand-orange ${isLocating ? 'animate-spin' : ''}`} />
-              <span>{isLocating ? 'Locating...' : 'Locate Me'}</span>
+              <span className="hidden sm:inline">{isLocating ? 'Locating...' : 'Locate Me'}</span>
             </button>
           </div>
         </div>
@@ -249,26 +318,56 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
 
       {/* Location Status Notice if any */}
       {locationStatus && (
-        <div className="bg-brand-soft-blue/90 border-b border-brand-neutral-grey text-[11px] px-3 py-1 text-brand-navy flex items-center justify-between">
+        <div className="bg-brand-soft-blue/90 border-b border-brand-neutral-grey text-[11px] px-3 py-1 text-brand-navy flex items-center justify-between flex-shrink-0 z-20">
           <span>{locationStatus}</span>
           <button onClick={() => setLocationStatus('')} className="text-brand-slate hover:text-brand-navy font-bold">×</button>
         </div>
       )}
 
-      {/* Map Canvas */}
-      <div style={{ height, width: '100%' }} className="relative z-10">
+      {/* Tile Error Recovery Bar */}
+      {tileErrorCount > 3 && (
+        <div className="bg-amber-50 border-b border-amber-200 text-[11px] px-3 py-1 text-amber-900 flex items-center justify-between flex-shrink-0 z-20">
+          <span className="flex items-center gap-1">
+            <AlertTriangle className="w-3.5 h-3.5 text-brand-orange" />
+            Tile network latency detected.
+          </span>
+          <button
+            onClick={handleSwitchToFallbackTiles}
+            className="underline font-bold text-brand-orange hover:text-brand-orange-hover"
+          >
+            Switch to High-Speed Fallback Tile Server
+          </button>
+        </div>
+      )}
+
+      {/* Map Canvas: guaranteed flex-1 expansion */}
+      <div className="flex-1 w-full min-h-[220px] relative z-10 overflow-hidden">
         <MapContainer
           center={center}
           zoom={zoom}
-          style={{ height: '100%', width: '100%' }}
+          style={{ height: '100%', width: '100%', minHeight: '100%' }}
           scrollWheelZoom={true}
+          zoomControl={false}
           ref={mapRef}
         >
-          {/* OpenStreetMap Raster Tile Layer with attribution */}
+          {/* Zoom Control placed at bottom right to avoid header collision */}
+          <ZoomControl position="bottomright" />
+
+          {/* Map resizer engine */}
+          <MapResizer />
+
+          {/* Tile Layer with attribution & error detection */}
           <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a> contributors'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            maxZoom={19}
+            key={activeProvider.url}
+            attribution={activeProvider.attribution}
+            url={activeProvider.url}
+            maxZoom={activeProvider.maxZoom}
+            subdomains={activeProvider.subdomains || ['a', 'b', 'c']}
+            eventHandlers={{
+              tileerror: () => {
+                setTileErrorCount((c) => c + 1);
+              }
+            }}
           />
 
           <MapController center={center} zoom={zoom} selectedHazard={selectedHazard} />
@@ -396,37 +495,36 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
             );
           })}
         </MapContainer>
-      </div>
 
-      {/* Floating Map Legend */}
-      <div className="absolute bottom-4 left-4 z-20 bg-white/95 backdrop-blur-md rounded-xl p-2.5 border border-brand-neutral-grey/90 shadow-card text-[11px] font-medium space-y-1.5 hidden sm:block">
-        <div className="font-bold text-brand-navy uppercase tracking-wider text-[10px] pb-1 border-b border-slate-100">
-          Hazard Severity
+        {/* Floating Map Legend (placed inside map canvas, bottom-left) */}
+        <div className="absolute bottom-4 left-4 z-20 bg-white/95 backdrop-blur-md rounded-xl p-2.5 border border-brand-neutral-grey/90 shadow-card text-[11px] font-medium space-y-1.5 hidden md:block max-w-[240px]">
+          <div className="font-bold text-brand-navy uppercase tracking-wider text-[10px] pb-1 border-b border-slate-100">
+            Hazard Severity
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-brand-red flex-shrink-0 animate-pulse" />
+            <span className="truncate">Critical (Swerve / rim hazard)</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-brand-orange flex-shrink-0" />
+            <span className="truncate">High-Risk (Severe cavity)</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-amber-500 flex-shrink-0" />
+            <span className="truncate">Moderate (Uneven asphalt)</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-brand-green flex-shrink-0" />
+            <span className="truncate">Resolved (Repaired)</span>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-brand-red flex-shrink-0 animate-pulse" />
-          <span>Critical Hazard (Immediate swerve risk)</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-brand-orange flex-shrink-0" />
-          <span>High-Risk (Severe pothole / deep crack)</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-amber-500 flex-shrink-0" />
-          <span>Moderate Hazard (Uneven surface)</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-brand-green flex-shrink-0" />
-          <span>Resolved / Repaired</span>
-        </div>
-      </div>
 
-      {/* Map Active Counter Pill */}
-      <div className="absolute top-16 right-4 z-20 bg-brand-navy/90 backdrop-blur-md text-white rounded-xl px-3 py-1.5 border border-white/20 shadow-elevated text-xs font-semibold flex items-center gap-2">
-        <ShieldAlert className="w-4 h-4 text-brand-orange" />
-        <span>{filteredHazards.length} Active Incidents</span>
+        {/* Floating Active Count Pill */}
+        <div className="absolute top-3 right-3 z-20 bg-brand-navy/90 backdrop-blur-md text-white rounded-xl px-3 py-1.5 border border-white/20 shadow-elevated text-xs font-semibold flex items-center gap-1.5">
+          <ShieldAlert className="w-3.5 h-3.5 text-brand-orange" />
+          <span>{filteredHazards.length} Incidents</span>
+        </div>
       </div>
     </div>
   );
 };
-

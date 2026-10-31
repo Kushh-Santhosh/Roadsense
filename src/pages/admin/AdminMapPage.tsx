@@ -129,7 +129,7 @@ export const AdminMapPage: React.FC = () => {
 
       {/* Main Map with Detail Drawer */}
       <div className="flex-1 relative flex overflow-hidden">
-        <div className="flex-1 h-full relative">
+        <div className="flex-1 h-full relative flex flex-col min-w-0">
           <LeafletMap
             hazards={filteredHazards}
             selectedHazard={selectedHazard}
